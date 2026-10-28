@@ -24,11 +24,11 @@ Popup para execução e configurações em aba própria da extensão, com aparê
 
 ## Capabilities and Constraints
 
-Dados locais em chrome.storage.local. Sem transmissão externa. Dados sensíveis podem ser preenchidos após comando sem confirmação adicional. Descrições de experiências precisam de campos amplos. Campos ambíguos exigem revisão. Respostas discursivas são sugestões. Sem senhas, tokens, códigos ou dados bancários. Parte 3 cria interface; detecção e preenchimento reais pertencem às próximas etapas.
+Dados locais em chrome.storage.local. Sem transmissão externa. Dados sensíveis podem ser preenchidos após comando sem confirmação adicional. Descrições de experiências precisam de campos amplos. Campos ambíguos exigem revisão. Respostas discursivas são sugestões. Sem senhas, tokens, códigos ou dados bancários. Parte 4 oferece inventário diagnóstico de campos nativos visíveis no frame principal, acionado pelo popup. Classificação e preenchimento pertencem às próximas etapas.
 
 ## Evidence on Hand
 
-Requisitos e experiências fornecidos pelo usuário no chat. Não incluir dados pessoais no repositório. Não há contagens reais de análise ou integração com formulários nesta fase.
+Requisitos e experiências fornecidos pelo usuário no chat. Não incluir dados pessoais no repositório. Há contagens reais do inventário diagnóstico. Não há classificação de perguntas ou preenchimento nesta fase.
 
 ## Product Principles
 

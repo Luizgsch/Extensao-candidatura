@@ -479,3 +479,7 @@ input[type="number"],
 .inline {
   flex-wrap: wrap;
 }
+
+.popup #analyze + button {
+  margin-top: 10px;
+}

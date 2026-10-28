@@ -42,3 +42,20 @@ test("estado vazio sem referências compartilhadas", () => {
   assert.equal(createDefaultState().settings.confidence.minimumLead, 10);
   assert.deepEqual(state.candidate, {});
 });
+import { isExtensionMessage, isPageAnalysis } from "../src/shared/messaging";
+test("protocolo rejeita comandos desconhecidos e contagens inválidas", () => {
+  assert.equal(isExtensionMessage({ type: "ANALYZE_ACTIVE_TAB" }), true);
+  assert.equal(isExtensionMessage({ type: "SUBMIT_APPLICATION" }), false);
+  assert.equal(isExtensionMessage(null), false);
+  const analysis = {
+    url: "https://example.test/jobs",
+    title: "Vaga",
+    fieldsFound: 3,
+    editableFields: 2,
+    manualUploads: 1,
+    embeddedFrames: 0,
+  };
+  assert.equal(isPageAnalysis(analysis), true);
+  assert.equal(isPageAnalysis({ ...analysis, fieldsFound: -1 }), false);
+  assert.equal(isPageAnalysis({ ...analysis, editableFields: "2" }), false);
+});

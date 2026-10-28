@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-28T20:08:28.604023+00:00",
+  "generatedAt": "2026-10-28T20:18:22.625374+00:00",
   "title": "Design System: Assistente de Candidaturas",
   "extensions": {
     "colorMeta": {
@@ -179,8 +179,15 @@
       "name": "Aviso",
       "kind": "custom",
       "description": "Contexto operacional sem efeito de cartão elevado.",
-      "html": "<aside>Preenchimento em preparação. Configure seus dados e respostas.</aside>",
+      "html": "<aside>Analise os campos visíveis da página. O preenchimento será conectado nas próximas etapas.</aside>",
       "css": "aside{font-family:\"DM Sans\",sans-serif;font-synthesis:none;box-sizing:border-box;padding:18px;border-radius:4px;background:#e9ddcf;color:#594332;font-size:13px;line-height:1.6}"
+    },
+    {
+      "name": "Ações de análise no popup",
+      "kind": "custom",
+      "description": "Análise real pela extensão: ação ocupada desabilitada, contagens validadas e status textual. Preenchimento permanece indisponível. A prévia abaixo demonstra o estado inicial.",
+      "html": "<div class=\"popup-actions\"><button id=\"analyze\">Analisar página</button><button class=\"secondary\" disabled>Preencher página</button><dl><div><dt>Campos encontrados</dt><dd>—</dd></div><div><dt>Campos editáveis</dt><dd>—</dd></div></dl><p role=\"status\"></p></div>",
+      "css": ".popup-actions{font-family:\"DM Sans\",sans-serif;font-synthesis:none;color:var(--ink,#2a211c)}button{font:inherit;box-sizing:border-box;width:100%;min-height:44px;padding:11px 22px;border:1px solid var(--action,#714a35);background:var(--action,#714a35);color:white;border-radius:5px;cursor:pointer}#analyze+button{margin-top:10px}button:hover{background:#563723}button:disabled{background:#e0d5c9;color:#68584b;border-color:#c5b5a4;cursor:not-allowed}button:focus-visible{outline:3px solid #a26931;outline-offset:4px}dl{margin:24px 0;font-variant-numeric:tabular-nums}dl div{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line,#d5c7b8);font-size:13px}dd{margin:0}p{font-size:13px;color:var(--muted,#725e50);line-height:1.65}"
     }
   ],
   "narrative": {
@@ -206,7 +213,7 @@
       "Do manter as fontes locais e a identidade compartilhada pelo popup."
     ],
     "donts": [
-      "Don't exibir detecção ou preenchimento como disponíveis nesta etapa.",
+      "Don't apresentar análise básica como detecção de componentes customizados, leitura de frames ou preenchimento disponível.",
       "Don't inserir métricas fictícias ou dados pessoais no repositório.",
       "Don't substituir divisores e superfícies por uma coleção de cartões com sombra.",
       "Don't adicionar animação quando a preferência de movimento reduzido estiver ativa."

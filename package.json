@@ -1,6 +1,6 @@
 {
   "name": "extensao-linkedin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,8 @@
     "check": "npm run typecheck && npm test && npm run build",
     "preview": "npm run build && node scripts/preview.mjs",
     "test:ui": "npm run build && node scripts/verify-ui.mjs",
-    "test:extension": "npm run build && node scripts/verify-extension.mjs"
+    "test:extension": "npm run build && node scripts/verify-extension.mjs",
+    "test:analysis": "npm run build && node scripts/verify-analysis.mjs"
   },
   "repository": {
     "type": "git",

@@ -1,6 +1,6 @@
 # Assistente de Candidaturas
 
-Extensão local Manifest V3. Parte 3: popup e configurações editoriais em marrom e bege. Preenchimento de páginas ainda não disponível.
+Extensão local Manifest V3. Parte 4: popup conectado à aba e inventário diagnóstico de campos. Preenchimento de páginas ainda não disponível.
 
 ## Ambiente
 
@@ -14,7 +14,7 @@ Execute npm run build. No Chrome ou Brave, abra a página de extensões, ative m
 
 Dados pessoais, contato, formação principal, experiências com descrições amplas em português e inglês, respostas tipadas básicas, perfis e preferências de confiança. Registros podem ser criados, editados e excluídos. Ainda faltam importação/exportação, demais tipos de respostas, associação avançada de perfis e detector de formulários.
 
-O popup permite selecionar um perfil e abrir configurações. Preencher página permanece desabilitado até implementação do motor. Contagens não analisadas aparecem como traço.
+O popup permite selecionar um perfil, abrir configurações e analisar campos nativos visíveis da aba principal após comando. Preencher página permanece desabilitado até implementação do motor. Contagens não analisadas aparecem como traço. Campos em frames e componentes customizados ainda não são analisados. A análise não lê valores nem altera o formulário.
 
 ## Prévia
 
@@ -31,3 +31,7 @@ Sem backend, telemetria ou chamadas externas. Fontes distribuídas localmente co
 ## Publicação futura
 
 Build separado em dist. Publicação ainda exigirá ícones, política de privacidade, capturas, revisão de permissões e validação nas lojas.
+
+## Teste da comunicação
+
+npm run test:analysis executa uma extensão real no Edge em perfil novo, testa contagens, análises repetidas, popup e recusa de página protegida. O teste concede acesso apenas ao servidor de formulário local no manifesto copiado para work; essa permissão não entra no pacote real. O pacote usa activeTab: o usuário deve clicar no ícone da extensão na aba desejada para autorizar acesso temporário. Ainda falta validação manual desse fluxo no Chrome e Brave.

@@ -49,6 +49,7 @@ rounded:
   field: "4px"
   button: "5px"
 spacing:
+  popup-action-gap: "10px"
   field: "12px"
   grid: "22px"
   section: "30px"
@@ -139,6 +140,12 @@ A operação oferece Meus dados, Experiências, Minhas respostas, Perfis, Prefer
 
 Avisos usam fundo bege mais denso e padding de 18px. Registros são separados por linhas, com cabeçalho flexível e texto preservando quebras de linha. Estados vazios usam texto explicativo, sem contagens inventadas. O popup mostra o preenchimento em preparação e mantém o botão correspondente desabilitado.
 
+### Análise no popup
+
+“Analisar página” é a ação principal. “Preencher página” permanece secundária e desabilitada, separada da ação anterior por 10px. A análise não altera campos. Durante a leitura, a ação fica desabilitada com o texto “Analisando…”, as contagens voltam ao travessão e o status textual informa o progresso. Ao terminar ou falhar, a ação é habilitada novamente.
+
+Contagens de campos encontrados e campos editáveis aparecem somente a partir de resposta validada da extensão. Antes da análise e em falhas, permanecem indisponíveis. O status usa `role="status"`; não há spinner ou novos estilos de carregamento. A nota informa que a análise cobre campos nativos visíveis da página principal; componentes customizados não são identificados. Havendo frames ou anexos, acrescenta limites de leitura dos frames e seleção manual de arquivos. Na prévia web, a análise fica desabilitada com explicação de que requer a extensão instalada.
+
 Movimento é discreto: hover da navegação dura 0.16s; feedback entra em 0.2s, com deslocamento de 8px e desfoque inicial de 2px. Ambos são ativados apenas quando `prefers-reduced-motion: no-preference` corresponde.
 
 ## Do's and Don'ts
@@ -150,7 +157,7 @@ Movimento é discreto: hover da navegação dura 0.16s; feedback entra em 0.2s, 
 - Do manter as fontes locais e a identidade compartilhada pelo popup.
 
 ### Don't:
-- Don't exibir detecção ou preenchimento como disponíveis nesta etapa.
+- Don't apresentar análise básica como detecção de componentes customizados, leitura de frames ou preenchimento disponível.
 - Don't inserir métricas fictícias ou dados pessoais no repositório.
 - Don't substituir divisores e superfícies por uma coleção de cartões com sombra.
 - Don't adicionar animação quando a preferência de movimento reduzido estiver ativa.

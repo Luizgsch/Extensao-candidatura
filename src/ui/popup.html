@@ -16,20 +16,22 @@
         <option value="">Nenhum perfil cadastrado</option>
       </select>
       <div class="notice">
-        Preenchimento em preparação. Nesta etapa, configure seus dados e
-        respostas.
+        Analise os campos visíveis da página. O preenchimento será conectado nas
+        próximas etapas.
       </div>
-      <button disabled>Preencher página</button>
+      <button id="analyze">Analisar página</button>
+      <button disabled class="secondary">Preencher página</button>
       <dl class="counts">
         <div>
           <dt>Campos encontrados</dt>
-          <dd>—</dd>
+          <dd id="found">—</dd>
         </div>
         <div>
-          <dt>Revisão necessária</dt>
-          <dd>—</dd>
+          <dt>Campos editáveis</dt>
+          <dd id="editable">—</dd>
         </div>
       </dl>
+      <p id="analysis-note"></p>
       <button id="settings" class="secondary">Abrir configurações</button>
       <p id="status" role="status"></p>
       <footer>Armazenamento local · Envio sempre manual</footer>
