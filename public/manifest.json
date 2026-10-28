@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Assistente de Candidaturas",
+  "version": "0.1.0",
+  "description": "Assistente local. Base técnica, sem preenchimento nesta versão.",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Assistente de Candidaturas — base técnica"
+  }
+}
