@@ -45,3 +45,13 @@ schema.ts valida todo AppState com limites, datas, tipos, identificadores e inte
 Interface oferece revisão da importação antes de aplicar; preferências mescladas sem substituir dados pessoais e backup completo substituído somente após confirmação. Erros preservam estado anterior. Dados incompatíveis na abertura oferecem cópia bruta de recuperação. Gravações usam Web Locks e snapshot canônico para evitar sobrescrever edição de outra aba; ordenação de chaves do Chrome Storage é normalizada.
 
 Cadastro ampliado inclui profissional, diversidade opcional e formação técnica. Respostas suportam todos os tipos do contrato e expressões excludentes. Sinônimos editáveis em português e inglês. Dados reais continuam fora de código e fixtures. Testes de integração usam exclusivamente perfil temporário do Edge.
+
+## Atualização — parte 6
+
+Mensagens FILL_ACTIVE_TAB, UNDO_ACTIVE_TAB e GET_ACTIVE_SESSION coordenadas no service worker. Planejamento lê identificadores no content script; background entrega somente chaves pessoais reconhecidas presentes no estado validado. Candidatos completos, experiências e respostas não são enviados ao DOM. Ponte idempotente e fila por documento evitam execução concorrente no formulário. Resultados e histórico permanecem em memória do documento.
+
+Módulo personal-fields.ts combina rótulo, aria-label/labelledby, identificadores, placeholder e autocomplete com aliases exatos normalizados. Não usa ainda matching fuzzy ou regras cadastradas. Sinais conflitantes e rótulos explícitos desconhecidos bloqueiam preenchimento. Subcampos tel-*, campos financeiros e autenticação não são tratados como dados pessoais comuns. Seções de referências e histórico recebem revisão manual.
+
+Setter nativo do protótipo e eventos input/change atualizam controles. Verificação confirma manutenção do valor e validity; rejeição nativa retorna ao anterior quando possível. Transformação pelo site é marcada como falha, mantendo valor observado no histórico para permitir desfazer. Animação temporária não altera estilo inline. Histórico guarda valores anterior/aplicado da última operação com alterações; undo verifica conexão, editabilidade e igualdade antes de restaurar. Não há clique em envio, avanço de etapa ou consentimento.
+
+Fixture local inclui inputs nativos e React controlado real. Testes isolados no Edge validam fluxo e limites; Chrome/Brave ainda pendentes. React é apenas dependência de desenvolvimento e não é incluído no build da extensão.

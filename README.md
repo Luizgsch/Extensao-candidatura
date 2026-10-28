@@ -1,6 +1,6 @@
 # Assistente de Candidaturas
 
-Extensão local Manifest V3. Parte 5: gerenciamento local de dados, validação e backups. Preenchimento de páginas ainda não disponível.
+Extensão local Manifest V3. Parte 6: primeiro preenchimento funcional de dados gerais em inputs nativos simples, iniciado pelo usuário.
 
 ## Ambiente
 
@@ -12,9 +12,9 @@ Execute npm run build. No Chrome ou Brave, abra a página de extensões, ative m
 
 ## Interface disponível
 
-Dados pessoais, contato, perfil profissional, diversidade opcional, formação principal e técnica, experiências com descrições amplas, respostas de todos os tipos previstos, perfis, sinônimos e preferências. Registros podem ser criados, editados e excluídos. Associação avançada de perfis e preenchimento de formulários continuam nas próximas etapas.
+Dados pessoais, contato, perfil profissional, diversidade opcional, formação principal e técnica, experiências com descrições amplas, respostas de todos os tipos previstos, perfis, sinônimos e preferências. Registros podem ser criados, editados e excluídos. Associação avançada de perfis, correspondência de respostas configuráveis e seleção de opções continuam nas próximas etapas.
 
-O popup permite selecionar um perfil, abrir configurações e analisar campos nativos visíveis da aba principal após comando. Preencher página permanece desabilitado até implementação do motor. Contagens não analisadas aparecem como traço. Campos em frames e componentes customizados ainda não são analisados. A análise não lê valores nem altera o formulário.
+O popup permite selecionar um perfil, abrir configurações e analisar campos nativos visíveis da aba principal após comando. Preencher página aplica dados gerais conhecidos em inputs text/email/tel/url/number/date, após validar rótulo, tipo e limite de confiança. Contagens não analisadas aparecem como traço. Campos em frames e componentes customizados ainda não são analisados. A análise não lê valores nem altera o formulário.
 
 ## Prévia
 
@@ -45,3 +45,15 @@ Restaurar preferências volta limites e sinônimos aos padrões, mantendo cadast
 Gravações em abas simultâneas usam trava e comparação de estado. Ao detectar outra edição, a gravação é recusada e os campos permanecem disponíveis. Reabra as configurações para carregar a versão atual.
 
 Execute npm run test:data para verificar exportação, importação, cancelamento, preservação de tipos e traduções, conflitos entre abas, recuperação e exclusão em perfil isolado do Edge. Nenhum teste usa seu perfil pessoal ou dados reais.
+
+## MVP de preenchimento — parte 6
+
+Recarregue a extensão e a página da candidatura após atualizar. Cadastre seus dados em Configurações, abra o formulário HTTP/HTTPS e clique no ícone da extensão. Preencher página faz análise e preenchimento em uma ação. Analisar página continua sem alterar valores. Revisar campos mostra o resultado de cada campo, sem reproduzir respostas pessoais.
+
+Valores já preenchidos são preservados por padrão. Conflitos de identificação, campos de terceiros, perguntas desconhecidas, tipos incompatíveis e dados ausentes ficam para revisão. Selects, radios, checkboxes, textarea, componentes customizados e frames ainda não são preenchidos. Regras e sinônimos cadastrados serão conectados ao motor na parte 7. Perfis indicam currículo recomendado; preenchimento nesta versão usa dados gerais. Nenhum upload ou envio é acionado.
+
+Desfazer último preenchimento restaura apenas a última operação que alterou campos. Repetir uma operação sem alterações mantém o histórico anterior. Edições posteriores e campos desconectados são preservados e informados como conflitos. Recarregar ou navegar encerra o histórico em memória. Eventos input/change atualizam campos controlados; compatibilidade validada com React real em fixture, sem alegar suporte universal a todos os frameworks ou sites.
+
+Execute npm run fixture para abrir formulário local fictício em http://127.0.0.1:4175. Instale a extensão no navegador de teste, abra essa página e use o popup. React é dependência apenas dos testes e não integra o pacote da extensão.
+
+Execute npm run test:fill para testes reais no Edge: PT/EN, React controlado, eventos, campos preservados, ambiguidade, autenticação, terceiros, restrições nativas, máscaras rejeitadas, novos campos após comando, desfazer, conflitos manuais e ausência de envio. Acesso ao servidor é autorizado apenas no manifesto copiado de teste; pacote real mantém activeTab sem acesso permanente a todos os sites. Validação direta no Chrome e Brave permanece pendente.

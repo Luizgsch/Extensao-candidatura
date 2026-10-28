@@ -6,8 +6,14 @@ export interface PageAnalysis {
   manualUploads: number;
   embeddedFrames: number;
 }
-export type ExtensionMessage =
-  { type: "GET_STATUS" } | { type: "ANALYZE_ACTIVE_TAB" };
+export type ExtensionMessage = {
+  type:
+    | "GET_STATUS"
+    | "ANALYZE_ACTIVE_TAB"
+    | "FILL_ACTIVE_TAB"
+    | "UNDO_ACTIVE_TAB"
+    | "GET_ACTIVE_SESSION";
+};
 export type AnalysisResponse =
   { ok: true; analysis: PageAnalysis } | { ok: false; error: string };
 export function isExtensionMessage(value: unknown): value is ExtensionMessage {
@@ -15,7 +21,13 @@ export function isExtensionMessage(value: unknown): value is ExtensionMessage {
     typeof value === "object" &&
     value !== null &&
     "type" in value &&
-    (value.type === "GET_STATUS" || value.type === "ANALYZE_ACTIVE_TAB")
+    [
+      "GET_STATUS",
+      "ANALYZE_ACTIVE_TAB",
+      "FILL_ACTIVE_TAB",
+      "UNDO_ACTIVE_TAB",
+      "GET_ACTIVE_SESSION",
+    ].includes(String(value.type))
   );
 }
 export function isPageAnalysis(value: unknown): value is PageAnalysis {

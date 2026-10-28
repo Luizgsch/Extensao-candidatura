@@ -480,6 +480,52 @@ input[type="number"],
   flex-wrap: wrap;
 }
 
-.popup #analyze + button {
+.popup h1 {
+  font-size: 28px;
+  margin-top: 24px;
+}
+.popup #resume {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.popup .primary-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.popup #undo {
   margin-top: 10px;
+}
+.popup .compact-counts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 20px;
+  margin: 16px 0;
+}
+.popup .compact-counts div {
+  font-size: 12px;
+  gap: 8px;
+}
+.popup summary {
+  min-height: 44px;
+  padding: 12px 0;
+  cursor: pointer;
+}
+.popup #field-results {
+  list-style: none;
+  padding: 0;
+  max-height: 220px;
+  overflow: auto;
+}
+.popup #field-results li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.popup #field-results span {
+  display: block;
+  margin-top: 5px;
+  line-height: 1.5;
+  color: var(--muted);
 }

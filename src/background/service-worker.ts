@@ -1,6 +1,6 @@
 import { initializeStorage } from "../storage/repository";
 import { isExtensionMessage } from "../shared/messaging";
-import { analyzeActiveTab } from "./active-tab";
+import { actOnActiveTab } from "./active-tab";
 const ready = initializeStorage();
 ready.catch(() =>
   console.error("Falha na inicialização do armazenamento local."),
@@ -17,8 +17,8 @@ chrome.runtime.onMessage.addListener(
     void ready
       .then(async () => {
         if (message.type === "GET_STATUS")
-          return { phase: 4, fillingEnabled: false, analysisEnabled: true };
-        return analyzeActiveTab();
+          return { phase: 6, fillingEnabled: true, analysisEnabled: true };
+        return actOnActiveTab(message.type);
       })
       .then(sendResponse)
       .catch(() =>

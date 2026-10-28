@@ -59,7 +59,7 @@ try {
   assert.equal(await popup.locator("#editable").textContent(), "4");
   assert.equal(
     await popup.getByRole("button", { name: "Preencher página" }).isDisabled(),
-    true,
+    false,
   );
   await popup.setViewportSize({ width: 370, height: 600 });
   await popup.screenshot({

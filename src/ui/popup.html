@@ -9,32 +9,67 @@
   <body class="popup">
     <main>
       <div class="brand">Candidaturas<span>Assistente local</span></div>
-      <h1>Seu próximo<br />passo começa aqui.</h1>
-      <p>Seus dados organizados. Cada candidatura, sob seu controle.</p>
+      <h1>Preencher candidatura</h1>
+      <p>Seus dados no formulário. Envio sempre manual.</p>
       <label for="profile">Perfil de candidatura</label
       ><select id="profile">
-        <option value="">Nenhum perfil cadastrado</option>
+        <option value="">Dados gerais</option>
       </select>
-      <div class="notice">
-        Analise os campos visíveis da página. O preenchimento será conectado nas
-        próximas etapas.
+      <p id="resume"></p>
+      <div class="primary-actions">
+        <button id="analyze" class="secondary">Analisar página</button
+        ><button id="fill">Preencher página</button>
       </div>
-      <button id="analyze">Analisar página</button>
-      <button disabled class="secondary">Preencher página</button>
-      <dl class="counts">
+      <button id="undo" class="secondary" disabled>
+        Desfazer último preenchimento
+      </button>
+      <dl class="counts compact-counts">
         <div>
-          <dt>Campos encontrados</dt>
+          <dt>Encontrados</dt>
           <dd id="found">—</dd>
         </div>
         <div>
-          <dt>Campos editáveis</dt>
+          <dt>Editáveis</dt>
           <dd id="editable">—</dd>
         </div>
+        <div>
+          <dt>Reconhecidos</dt>
+          <dd id="recognized">—</dd>
+        </div>
+        <div>
+          <dt>Preenchidos</dt>
+          <dd id="filled">—</dd>
+        </div>
+        <div>
+          <dt>Revisão</dt>
+          <dd id="review">—</dd>
+        </div>
+        <div>
+          <dt>Preservados</dt>
+          <dd id="preserved">—</dd>
+        </div>
+        <div>
+          <dt>Desconhecidos</dt>
+          <dd id="unknown">—</dd>
+        </div>
+        <div>
+          <dt>Não suportados</dt>
+          <dd id="unsupported">—</dd>
+        </div>
       </dl>
-      <p id="analysis-note"></p>
+      <p id="status" role="status" aria-live="polite"></p>
+      <details id="field-details" hidden>
+        <summary>Revisar campos</summary>
+        <ul id="field-results"></ul>
+      </details>
+      <p id="analysis-note">
+        Nesta etapa: dados gerais em inputs simples. Seleções, textos longos e
+        frames ficam para revisão manual.
+      </p>
       <button id="settings" class="secondary">Abrir configurações</button>
-      <p id="status" role="status"></p>
-      <footer>Armazenamento local · Envio sempre manual</footer>
+      <footer>
+        Dados locais · Desfazer disponível até recarregar a página
+      </footer>
     </main>
     <script src="popup.js"></script>
   </body>

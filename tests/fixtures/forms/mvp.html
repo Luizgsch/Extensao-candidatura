@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-BR">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>Formulário local de teste — dados fictícios</title
+  ><style>
+    body {
+      font: 16px system-ui;
+      max-width: 740px;
+      margin: 32px auto;
+      padding: 20px;
+    }
+    label {
+      display: block;
+      margin: 16px 0;
+    }
+    input,
+    select,
+    textarea {
+      display: block;
+      padding: 10px;
+      width: 95%;
+      max-width: 520px;
+    }
+    input[type="checkbox"] {
+      width: auto;
+    }
+    fieldset {
+      margin: 24px 0;
+    }
+    button {
+      padding: 12px;
+    }
+  </style>
+  <h1>Candidatura de teste</h1>
+  <p>Ambiente local. Dados fictícios. Nenhuma candidatura real.</p>
+  <form id="application">
+    <label
+      >Nome completo<input
+        id="fullName"
+        autocomplete="name"
+        style="outline: 1px dotted #555" /></label
+    ><label>Primeiro nome<input id="firstName" /></label
+    ><label lang="en">Surname<input id="lastName" /></label
+    ><label
+      >E-mail<input type="email" id="email-main" autocomplete="email" /></label
+    ><label lang="en"
+      >Confirm email<input type="email" id="confirmEmail" /></label
+    ><label>Telefone<input type="tel" id="phone" /></label
+    ><label>Portfólio<input type="url" id="portfolio" /></label
+    ><label>Data de nascimento<input type="date" id="birthDate" /></label
+    ><label>Cidade<input id="city" value="Cidade já informada" /></label
+    ><label>Estado<input id="state" readonly value="PR" /></label
+    ><label>País<input id="country" disabled /></label
+    ><label>LinkedIn<input type="url" id="linkedin" /></label
+    ><label>Nome completo<input name="email" id="ambiguous" /></label
+    ><label>Senha<input type="password" id="password" /></label
+    ><label
+      >E-mail<input name="email" autocomplete="one-time-code" id="otp" /></label
+    ><label>Referência interna<input id="unknown" /></label
+    ><label>Conte sobre você<textarea id="essay"></textarea></label
+    ><label
+      >Nível de inglês<select id="english">
+        <option value="">Selecione</option>
+        <option>Intermediário</option>
+      </select></label
+    ><label><input type="checkbox" id="terms" />Aceito os termos</label
+    ><label>Currículo<input type="file" id="resume" /></label>
+    <fieldset>
+      <legend>Referências profissionais</legend>
+      <label>Nome<input id="reference-name" /></label>
+    </fieldset>
+    <label>Telefone<input type="tel" id="masked-phone" /></label
+    ><label>Cidade<input id="rejected-city" /></label
+    ><label>Telefone<input id="invalid-phone" pattern="[0-9]{2}" /></label>
+    <label
+      >Telefone<input
+        type="tel"
+        autocomplete="tel-national"
+        id="national-phone"
+    /></label>
+    <label>Primeiro nome<input id="short-first-name" maxlength="2" /></label>
+    <div id="react-root"></div>
+    <div id="dynamic"></div>
+    <input type="hidden" id="hidden" /><button type="button" id="add-field">
+      Adicionar campo</button
+    ><button type="submit">Enviar candidatura</button>
+  </form>
+  <script src="native.js"></script>
+  <script src="react.js"></script>
+</html>

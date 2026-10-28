@@ -249,3 +249,135 @@ test("backup próximo do limite de armazenamento continua importável", () => {
   );
   assert.deepEqual(importBackup(exportBackup(state, true)), state);
 });
+import {
+  matchPersonalField,
+  valueForPersonalField,
+  type PersonalSignals,
+} from "../src/core/matching/personal-fields";
+const signals = (
+  label: string,
+  extra: Partial<PersonalSignals> = {},
+): PersonalSignals => ({
+  label,
+  name: "",
+  id: "",
+  placeholder: "",
+  autocomplete: "",
+  ...extra,
+});
+test("MVP reconhece rótulos PT/EN e camelCase sem confundir tipos de pergunta", () => {
+  assert.equal(matchPersonalField(signals("Nome completo *")).key, "fullName");
+  assert.equal(matchPersonalField(signals("First name")).key, "firstName");
+  assert.equal(matchPersonalField(signals("GitHub")).key, "github");
+  assert.equal(matchPersonalField(signals("LinkedIn")).key, "linkedin");
+  assert.equal(
+    matchPersonalField(signals("Confirmação de e-mail")).key,
+    "email",
+  );
+  assert.equal(
+    matchPersonalField(signals("", { name: "lastName" })).key,
+    "lastName",
+  );
+  assert.equal(
+    matchPersonalField(signals("Quantos anos de experiência com Java?")).key,
+    undefined,
+  );
+  assert.equal(
+    matchPersonalField(signals("Possui experiência com Java?")).key,
+    undefined,
+  );
+});
+test("MVP recusa ambiguidades, terceiros e autenticação", () => {
+  assert.equal(
+    matchPersonalField(signals("Nome completo", { id: "email" })).ambiguous,
+    true,
+  );
+  assert.equal(
+    matchPersonalField(signals("E-mail do responsável", { name: "email" })).key,
+    undefined,
+  );
+  assert.equal(
+    matchPersonalField(signals("Email", { autocomplete: "one-time-code" })).key,
+    undefined,
+  );
+  assert.equal(
+    matchPersonalField(signals("Nome da empresa", { id: "name" })).key,
+    undefined,
+  );
+});
+test("MVP respeita idioma, tipo e respostas discursivas", () => {
+  assert.equal(
+    valueForPersonalField(
+      "firstName",
+      { type: "text", value: { "pt-BR": "Pessoa" } },
+      "text",
+      "en",
+    ),
+    "Pessoa",
+  );
+  assert.equal(
+    valueForPersonalField(
+      "englishLevel",
+      { type: "text", value: { "pt-BR": "Intermediário" } },
+      "text",
+      "en",
+    ),
+    undefined,
+  );
+  assert.equal(
+    valueForPersonalField(
+      "email",
+      { type: "text", value: { "pt-BR": "nome" } },
+      "email",
+      "pt-BR",
+    ),
+    undefined,
+  );
+  assert.equal(
+    valueForPersonalField(
+      "fullName",
+      { type: "url", value: "https://example.test" },
+      "text",
+      "pt-BR",
+    ),
+    undefined,
+  );
+  assert.equal(
+    valueForPersonalField(
+      "fullName",
+      { type: "long-text", value: { "pt-BR": "História" } },
+      "text",
+      "pt-BR",
+    ),
+    undefined,
+  );
+  assert.equal(
+    valueForPersonalField(
+      "birthDate",
+      { type: "date", value: "2000-01-01" },
+      "text",
+      "pt-BR",
+    ),
+    undefined,
+  );
+});
+test("subcampos de telefone e autofill financeiro ficam para revisão", () => {
+  for (const autocomplete of [
+    "tel-national",
+    "tel-area-code",
+    "tel-local",
+    "tel-country-code",
+    "tel-extension",
+    "cc-name",
+    "organization",
+  ])
+    assert.equal(
+      matchPersonalField(signals("Nome", { autocomplete })).key,
+      undefined,
+    );
+  assert.equal(
+    matchPersonalField(signals("Telefone", { autocomplete: "tel-national" }))
+      .key,
+    undefined,
+  );
+});

@@ -24,7 +24,9 @@ const server = createServer(async (req, res) => {
     res.statusCode = 404;
     res.end();
   }
-}).listen(4173, "127.0.0.1");
+}).listen(0, "127.0.0.1");
+await new Promise((resolve) => server.once("listening", resolve));
+const origin = "http://127.0.0.1:" + server.address().port;
 const browser = await chromium.launch({ headless: true, channel: "msedge" });
 await mkdir(".impeccable/review", { recursive: true });
 try {
@@ -33,7 +35,7 @@ try {
   });
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("http://127.0.0.1:4173/settings.html");
+  await page.goto(origin + "/settings.html");
   await page
     .getByRole("heading", { name: "Meus dados", exact: true })
     .waitFor();
@@ -127,7 +129,7 @@ try {
   )
     throw Error("Foco perdido");
   await page.setViewportSize({ width: 390, height: 850 });
-  await page.goto("http://127.0.0.1:4173/popup.html");
+  await page.goto(origin + "/popup.html");
   await page.screenshot({
     path: ".impeccable/review/popup.png",
     fullPage: true,

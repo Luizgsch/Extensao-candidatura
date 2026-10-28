@@ -29,6 +29,12 @@ typography:
     fontWeight: 400
     lineHeight: 1.06
     letterSpacing: "-0.025em"
+  popup-heading:
+    fontFamily: "Newsreader, Georgia, serif"
+    fontSize: "28px"
+    fontWeight: 400
+    lineHeight: 1.06
+    letterSpacing: "-0.025em"
   headline:
     fontFamily: "Newsreader, Georgia, serif"
     fontSize: "30px"
@@ -107,13 +113,13 @@ Bege papel sustenta a área de trabalho. Branco quente marca campos. Tinta escur
 
 Newsreader, com fallback Georgia e serif, compõe títulos e marca. DM Sans, com fallback sans-serif, compõe controles e texto. Os arquivos locais são `fonts/newsreader.woff2` e `fonts/dm-sans.woff2`, declarados com peso 400 e `font-display: swap`; `font-synthesis: none` evita pesos artificiais.
 
-A hierarquia principal está no frontmatter. A marca usa 28px; no popup, 24px. O título do popup usa 38px. Parágrafos têm largura máxima de 68ch. O subtítulo da marca usa 11px, caixa alta e espaçamento de 0.09em. Valores numéricos de campos e contagens usam algarismos tabulares. Não há tamanho global explícito para o corpo.
+A hierarquia principal está no frontmatter. A marca usa 28px; no popup, 24px. O título do popup usa o token compacto de 28px, com margem superior de 24px. Parágrafos têm largura máxima de 68ch. O subtítulo da marca usa 11px, caixa alta e espaçamento de 0.09em. Valores numéricos de campos e contagens usam algarismos tabulares. Não há tamanho global explícito para o corpo.
 
 ## Layout
 
 As configurações usam grade com navegação de 252px e área flexível. A navegação é sticky e ocupa a altura da janela. O conteúdo tem máximo de 1100px e padding de 50px 6% 80px. Seções combinam introdução de 210px e formulário flexível, separados por 32px. Formulários usam duas colunas com intervalo de 22px; campos extensos ocupam toda a largura.
 
-Até 900px, a navegação passa a 200px e as seções ficam em uma coluna. Até 600px, a estrutura vira bloco; a navegação passa ao topo, com rolagem horizontal, e os campos ficam em uma coluna. O popup usa largura de 370px, mínimo de 320px e limite de 100vw em telas pequenas. Essas regras são observadas no CSS; não constituem certificação de todos os tamanhos ou navegadores.
+Até 900px, a navegação passa a 200px e as seções ficam em uma coluna. Até 600px, a estrutura vira bloco; a navegação passa ao topo, com rolagem horizontal, e os campos ficam em uma coluna. O popup usa largura de 370px, mínimo de 320px e limite de 100vw em telas pequenas. No popup, analisar e preencher ficam lado a lado em duas colunas, com intervalo de 10px; desfazer ocupa a largura abaixo, também separado por 10px. As oito contagens usam duas colunas com intervalo horizontal de 20px e margem vertical de 16px. Essas regras são observadas no CSS; não constituem certificação de todos os tamanhos ou navegadores.
 
 ## Elevation & Depth
 
@@ -139,13 +145,21 @@ A operação oferece Meus dados, Experiências, Minhas respostas, Perfis, Prefer
 
 ### Avisos, registros e feedback
 
-Avisos usam fundo bege mais denso e padding de 18px. Registros são separados por linhas, com cabeçalho flexível e texto preservando quebras de linha. Estados vazios usam texto explicativo, sem contagens inventadas. O popup mostra o preenchimento em preparação e mantém o botão correspondente desabilitado.
+Avisos usam fundo bege mais denso e padding de 18px. Registros são separados por linhas, com cabeçalho flexível e texto preservando quebras de linha. Estados vazios usam texto explicativo, sem contagens inventadas. O popup apresenta ações de análise, preenchimento e desfazer com estados reais de disponibilidade.
 
-### Análise no popup
+### Análise, preenchimento e revisão no popup
 
-“Analisar página” é a ação principal. “Preencher página” permanece secundária e desabilitada, separada da ação anterior por 10px. A análise não altera campos. Durante a leitura, a ação fica desabilitada com o texto “Analisando…”, as contagens voltam ao travessão e o status textual informa o progresso. Ao terminar ou falhar, a ação é habilitada novamente.
+“Preencher página” é a ação principal; “Analisar página” usa a variante secundária. As duas ficam lado a lado, com intervalo de 10px. “Desfazer último preenchimento” é secundária, ocupa a largura disponível e fica 10px abaixo. O seletor de perfil e o currículo recomendado antecedem as ações; nesta etapa, o preenchimento usa dados gerais.
 
-Contagens de campos encontrados e campos editáveis aparecem somente a partir de resposta validada da extensão. Antes da análise e em falhas, permanecem indisponíveis. O status usa `role="status"`; não há spinner ou novos estilos de carregamento. A nota informa que a análise cobre campos nativos visíveis da página principal; componentes customizados não são identificados. Havendo frames ou anexos, acrescenta limites de leitura dos frames e seleção manual de arquivos. Na prévia web, a análise fica desabilitada com explicação de que requer a extensão instalada.
+O preenchimento reconhece dados gerais em inputs simples com nomes em português e inglês. Selects, textareas, frames, regras personalizadas e correspondência fuzzy ainda não fazem parte do preenchimento. A análise permanece diagnóstica e não altera campos. O envio da candidatura é sempre manual.
+
+As oito contagens são Encontrados, Editáveis, Reconhecidos, Preenchidos, Revisão, Preservados, Desconhecidos e Não suportados. Começam com travessão. A análise validada atualiza somente encontrados e editáveis; o relatório de preenchimento validado atualiza todas, somando falhas à contagem de revisão. Desfazer limpa as contagens e informa restaurações, alterações posteriores preservadas e falhas.
+
+Durante uma operação, analisar, preencher e desfazer ficam desabilitados, assim como o seletor de perfil. O status usa `role="status"` e `aria-live="polite"`, com progresso textual, resultado ou erro. Desfazer só fica disponível quando a sessão permite e dura até recarregar a página; alterações posteriores são preservadas. Ao reabrir o popup, a extensão recupera o último relatório da sessão quando disponível.
+
+“Revisar campos” usa `details` nativo, oculto enquanto não há itens. Seu `summary` oferece altura mínima de 44px. A lista tem altura máxima de 220px e rolagem; cada linha mostra rótulo, estado e motivo, sem inventar resultados. As linhas usam texto de 12px, divisores e quebra de palavras longas.
+
+Na prévia HTTP, analisar, preencher e desfazer ficam desabilitados. O status explica que análise e preenchimento exigem a extensão instalada. A nota da análise informa limites da página principal, frames não lidos e anexos que exigem seleção manual.
 
 Movimento é discreto: hover da navegação dura 0.16s; feedback entra em 0.2s, com deslocamento de 8px e desfoque inicial de 2px. Ambos são ativados apenas quando `prefers-reduced-motion: no-preference` corresponde.
 
@@ -160,9 +174,9 @@ Movimento é discreto: hover da navegação dura 0.16s; feedback entra em 0.2s, 
 
 ### Don't:
 
-- Don't apresentar análise básica como detecção de componentes customizados, leitura de frames ou preenchimento disponível.
+- Don't apresentar preenchimento de inputs simples como suporte a selects, textareas, frames, regras personalizadas ou correspondência fuzzy.
 - Don't inserir métricas fictícias ou dados pessoais no repositório.
 - Don't substituir divisores e superfícies por uma coleção de cartões com sombra.
 - Don't adicionar animação quando a preferência de movimento reduzido estiver ativa.
 
-Privacidade oferece exportação, importação com revisão em linha, restauração de preferências e exclusão com confirmação explícita. Controles reutilizam a identidade e componentes existentes; nenhuma mudança de paleta ou escala na parte 5.
+Privacidade oferece exportação, importação com revisão em linha, restauração de preferências e exclusão com confirmação explícita. Controles reutilizam a identidade e componentes existentes; a parte 6 preserva paleta e fontes locais e compacta somente a hierarquia e a composição do popup.

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-28T20:18:22.625374+00:00",
+  "generatedAt": "2026-10-28T20:53:53.387473+00:00",
   "title": "Design System: Assistente de Candidaturas",
   "extensions": {
     "colorMeta": {
@@ -113,6 +113,10 @@
       "body": {
         "displayName": "Interface",
         "purpose": "Texto e controles operacionais."
+      },
+      "popup-heading": {
+        "displayName": "Título compacto do popup",
+        "purpose": "Preencher candidatura; Newsreader 28px com entrelinha 1.06."
       }
     },
     "shadows": [
@@ -179,15 +183,15 @@
       "name": "Aviso",
       "kind": "custom",
       "description": "Contexto operacional sem efeito de cartão elevado.",
-      "html": "<aside>Analise os campos visíveis da página. O preenchimento será conectado nas próximas etapas.</aside>",
+      "html": "<aside>Nesta etapa: dados gerais em inputs simples. Seleções, textos longos e frames ficam para revisão manual.</aside>",
       "css": "aside{font-family:\"DM Sans\",sans-serif;font-synthesis:none;box-sizing:border-box;padding:18px;border-radius:4px;background:#e9ddcf;color:#594332;font-size:13px;line-height:1.6}"
     },
     {
-      "name": "Ações de análise no popup",
+      "name": "Operação compacta no popup",
       "kind": "custom",
-      "description": "Análise real pela extensão: ação ocupada desabilitada, contagens validadas e status textual. Preenchimento permanece indisponível. A prévia abaixo demonstra o estado inicial.",
-      "html": "<div class=\"popup-actions\"><button id=\"analyze\">Analisar página</button><button class=\"secondary\" disabled>Preencher página</button><dl><div><dt>Campos encontrados</dt><dd>—</dd></div><div><dt>Campos editáveis</dt><dd>—</dd></div></dl><p role=\"status\"></p></div>",
-      "css": ".popup-actions{font-family:\"DM Sans\",sans-serif;font-synthesis:none;color:var(--ink,#2a211c)}button{font:inherit;box-sizing:border-box;width:100%;min-height:44px;padding:11px 22px;border:1px solid var(--action,#714a35);background:var(--action,#714a35);color:white;border-radius:5px;cursor:pointer}#analyze+button{margin-top:10px}button:hover{background:#563723}button:disabled{background:#e0d5c9;color:#68584b;border-color:#c5b5a4;cursor:not-allowed}button:focus-visible{outline:3px solid #a26931;outline-offset:4px}dl{margin:24px 0;font-variant-numeric:tabular-nums}dl div{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line,#d5c7b8);font-size:13px}dd{margin:0}p{font-size:13px;color:var(--muted,#725e50);line-height:1.65}"
+      "description": "Estado inicial da extensão: analisar e preencher lado a lado, desfazer indisponível, oito contagens sem valores. Revisão nativa aparece quando há itens; na prévia HTTP as três ações ficam desabilitadas.",
+      "html": "<section class=\"ds-popup\"><h1>Preencher candidatura</h1><p>Seus dados no formulário. Envio sempre manual.</p><div class=\"ds-actions\"><button class=\"ds-secondary\">Analisar página</button><button>Preencher página</button></div><button class=\"ds-secondary ds-undo\" disabled>Desfazer último preenchimento</button><dl><div><dt>Encontrados</dt><dd>—</dd></div><div><dt>Editáveis</dt><dd>—</dd></div><div><dt>Reconhecidos</dt><dd>—</dd></div><div><dt>Preenchidos</dt><dd>—</dd></div><div><dt>Revisão</dt><dd>—</dd></div><div><dt>Preservados</dt><dd>—</dd></div><div><dt>Desconhecidos</dt><dd>—</dd></div><div><dt>Não suportados</dt><dd>—</dd></div></dl><p role=\"status\" aria-live=\"polite\"></p><details hidden><summary>Revisar campos</summary><ul></ul></details><p>Nesta etapa: dados gerais em inputs simples. Seleções, textos longos e frames ficam para revisão manual.</p></section>",
+      "css": ".ds-popup{font-family:\"DM Sans\",sans-serif;font-synthesis:none;width:318px;max-width:100%;color:var(--ink,#2a211c);background:var(--paper,#f5efe6)}.ds-popup h1{font-family:Newsreader,Georgia,serif;font-weight:400;font-size:28px;line-height:1.06;letter-spacing:-.025em;margin:24px 0 18px}.ds-popup p{font-size:13px;line-height:1.65;color:var(--muted,#725e50)}.ds-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ds-popup button{font:inherit;width:100%;min-height:44px;padding:11px 22px;border:1px solid var(--action,#714a35);border-radius:5px;background:var(--action,#714a35);color:#fff;cursor:pointer}.ds-popup button:hover{background:#563723}.ds-popup .ds-secondary{background:transparent;color:var(--brown,#39281f);border-color:#b7a391}.ds-popup .ds-secondary:hover{background:#eadfd1}.ds-popup button:disabled{background:#e0d5c9;color:#68584b;border-color:#c5b5a4;cursor:not-allowed}.ds-popup :focus-visible{outline:3px solid #a26931;outline-offset:4px}.ds-popup .ds-undo{margin-top:10px}.ds-popup dl{display:grid;grid-template-columns:1fr 1fr;gap:0 20px;margin:16px 0;font-variant-numeric:tabular-nums}.ds-popup dl div{display:flex;justify-content:space-between;gap:8px;padding:12px 0;border-bottom:1px solid var(--line,#d5c7b8);font-size:12px}.ds-popup dd{margin:0}.ds-popup summary{min-height:44px;padding:12px 0;cursor:pointer}.ds-popup ul{list-style:none;padding:0;max-height:220px;overflow:auto}.ds-popup li{padding:12px 0;border-bottom:1px solid var(--line,#d5c7b8);font-size:12px;overflow-wrap:anywhere}.ds-popup li span{display:block;margin-top:5px;line-height:1.5;color:var(--muted,#725e50)}"
     }
   ],
   "narrative": {
@@ -213,7 +217,7 @@
       "Do manter as fontes locais e a identidade compartilhada pelo popup."
     ],
     "donts": [
-      "Don't apresentar análise básica como detecção de componentes customizados, leitura de frames ou preenchimento disponível.",
+      "Don't apresentar preenchimento de inputs simples como suporte a selects, textareas, frames, regras personalizadas ou correspondência fuzzy.",
       "Don't inserir métricas fictícias ou dados pessoais no repositório.",
       "Don't substituir divisores e superfícies por uma coleção de cartões com sombra.",
       "Don't adicionar animação quando a preferência de movimento reduzido estiver ativa."
