@@ -3,13 +3,16 @@ export interface ScoredCandidate {
   ruleId: string;
   score: number;
   suggestionOnly: boolean;
+  priority?: number;
 }
 export function decideMatch(
   fieldId: string,
   candidates: ScoredCandidate[],
   settings: ConfidenceSettings,
 ): MatchResult {
-  const ranked = [...candidates].sort((a, b) => b.score - a.score);
+  const ranked = [...candidates].sort(
+    (a, b) => b.score - a.score || (b.priority ?? 0) - (a.priority ?? 0),
+  );
   const best = ranked[0];
   const next = ranked[1];
   if (!best)

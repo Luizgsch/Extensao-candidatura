@@ -1,3 +1,4 @@
+import { isVisible } from "../controls/visibility";
 import type { PageAnalysis } from "../../shared/messaging";
 export function visibleNativeControls(
   document: Document,
@@ -13,13 +14,7 @@ export function visibleNativeControls(
       )
     )
       return false;
-    if (element.closest('[hidden],[inert],[aria-hidden="true"]')) return false;
-    const style = document.defaultView?.getComputedStyle(element);
-    return (
-      style?.visibility !== "hidden" &&
-      style?.display !== "none" &&
-      element.getClientRects().length > 0
-    );
+    return isVisible(element);
   });
 }
 export function inspectPage(document: Document): PageAnalysis {

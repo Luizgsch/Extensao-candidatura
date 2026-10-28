@@ -362,7 +362,7 @@ function body(): string {
             .join("")
         : empty(
             "Menos repetição. Mais tempo.",
-            "Cadastre palavras-chave e respostas. A correspondência com formulários será conectada nas próximas etapas.",
+            "Cadastre palavras-chave e respostas. As respostas ativas já podem preencher inputs simples. Textos longos aparecem como sugestões.",
           )) + '<div id="editor"></div>'
     );
   if (page === "perfis")
@@ -974,6 +974,23 @@ function editor(id?: string) {
         "text",
         true,
       ) +
+      '<div><label for="domainScope">Onde usar</label><select id="domainScope" name="domainScope"><option value="all" ' +
+      (!r?.domains ? "selected" : "") +
+      '>Todos os sites</option><option value="limited" ' +
+      (r?.domains ? "selected" : "") +
+      ">Somente os sites abaixo</option></select></div>" +
+      field(
+        "domains",
+        "Sites permitidos — domínios separados por vírgula",
+        r?.domains?.join(", "),
+        "text",
+        true,
+      ) +
+      '<div><label for="insertion">Inserção</label><select id="insertion" name="insertion"><option value="automatic" ' +
+      (r?.insertion !== "suggestion" ? "selected" : "") +
+      '>Automática quando confiável</option><option value="suggestion" ' +
+      (r?.insertion === "suggestion" ? "selected" : "") +
+      '>Somente sugerir</option></select></div><p class="wide">Perguntas discursivas nunca são preenchidas automaticamente. Prioridade ordena sugestões; correspondências próximas exigem revisão.</p>' +
       '<div><label for="type">Tipo de resposta</label><select id="type" name="type">' +
       [
         ["text", "Texto"],
@@ -1060,6 +1077,13 @@ function editor(id?: string) {
     target.replaceChildren();
     restoreFocus();
   });
+  const domainScope = form.querySelector<HTMLSelectElement>("#domainScope"),
+    domainInput = form.querySelector<HTMLInputElement>("#domains");
+  if (domainScope && domainInput) {
+    const update = () => (domainInput.disabled = domainScope.value === "all");
+    domainScope.addEventListener("change", update);
+    update();
+  }
   form.querySelector<HTMLInputElement>("input")?.focus();
   form.onsubmit = (event) => {
     event.preventDefault();
@@ -1192,6 +1216,24 @@ function editor(id?: string) {
           type: type === "long-text" ? "long-text" : "text",
           value: { "pt-BR": value, en: get("english") },
         };
+      if (get("domainScope") === "limited" && !get("domains")) {
+        notify("Informe pelo menos um domínio ou selecione Todos os sites.");
+        return;
+      }
+      if (
+        get("domains") &&
+        get("domains")
+          .split(",")
+          .some(
+            (domain) =>
+              !/^([a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)*[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i.test(
+                domain.trim(),
+              ),
+          )
+      ) {
+        notify("Informe somente domínios, sem https, caminhos ou curingas.");
+        return;
+      }
       const old = state.rules.find((r) => r.id === id);
       next.rules = next.rules.filter((r) => r.id !== recordId);
       next.rules.push({
@@ -1210,9 +1252,19 @@ function editor(id?: string) {
         answer,
         enabled: old?.enabled ?? true,
         priority: Number(get("priority")),
-        insertion: type === "long-text" ? "suggestion" : "automatic",
+        insertion:
+          type === "long-text" || get("insertion") === "suggestion"
+            ? "suggestion"
+            : "automatic",
         ...(old?.profileIds ? { profileIds: old.profileIds } : {}),
-        ...(old?.domains ? { domains: old.domains } : {}),
+        ...(get("domainScope") === "limited"
+          ? {
+              domains: get("domains")
+                .split(",")
+                .map((domain) => domain.trim().toLowerCase())
+                .filter(Boolean),
+            }
+          : {}),
       });
     }
     void persist(next);

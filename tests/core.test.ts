@@ -381,3 +381,280 @@ test("subcampos de telefone e autofill financeiro ficam para revisão", () => {
     undefined,
   );
 });
+import { resolveRule, type RuleField } from "../src/core/matching/rules";
+import type { AnswerRule, AnswerValue } from "../src/shared/types";
+const rule = (
+  id: string,
+  answer: AnswerValue,
+  keywords = ["java", "experiencia java"],
+): AnswerRule => ({
+  id,
+  name: id,
+  subject: "Java",
+  category: "Experiência",
+  keywords,
+  excludedKeywords: [],
+  answer,
+  enabled: true,
+  priority: 0,
+  insertion: "automatic",
+});
+const ruleField = (
+  question: string,
+  controlType = "text",
+  language: "pt-BR" | "en" = "pt-BR",
+): RuleField => ({
+  fieldId: "field-1",
+  question,
+  controlType,
+  language,
+  fingerprint: "test",
+});
+test("regras distinguem existência de duração em PT/EN", () => {
+  const state = createDefaultState();
+  state.rules = [
+    rule("bool", { type: "boolean", value: true }),
+    rule("years", { type: "experience-years", value: 2 }),
+  ];
+  for (const question of [
+    "Você possui experiência com Java?",
+    "Tem conhecimento em Java?",
+  ]) {
+    const result = resolveRule(ruleField(question), state, {
+      domain: "example.test",
+    });
+    assert.equal(result.ruleId, "bool");
+    assert.equal(result.value, "Sim");
+    assert.equal(result.decision, "fill");
+  }
+  for (const question of [
+    "Quantos anos de experiência com Java?",
+    "Há quanto tempo trabalha com Java?",
+  ]) {
+    const result = resolveRule(ruleField(question), state, {
+      domain: "example.test",
+    });
+    assert.equal(result.ruleId, "years");
+    assert.equal(result.value, "2");
+    assert.equal(result.decision, "fill");
+  }
+  assert.equal(
+    resolveRule(
+      ruleField("Do you have experience with Java?", "text", "en"),
+      state,
+      { domain: "example.test" },
+    ).value,
+    "Yes",
+  );
+  assert.equal(
+    resolveRule(
+      ruleField("How many years of experience with Java?", "number", "en"),
+      state,
+      { domain: "example.test" },
+    ).value,
+    "2",
+  );
+});
+test("regras recusam negação, requisitos numéricos, tecnologias extras e assuntos diferentes", () => {
+  const state = createDefaultState();
+  state.rules = [rule("bool", { type: "boolean", value: true })];
+  for (const question of [
+    "Não possui experiência com Java?",
+    "Do you have no experience with Java?",
+    "Possui pelo menos 5 anos de experiência com Java?",
+    "Possui experiência com Java e Python?",
+    "Possui certificação em Java?",
+    "Possui experiência com JavaScript?",
+  ])
+    assert.equal(
+      resolveRule(
+        ruleField(question, "text", question.startsWith("Do") ? "en" : "pt-BR"),
+        state,
+        { domain: "example.test" },
+      ).decision,
+      "skip",
+      question,
+    );
+});
+test("prioridade não mascara empate e regras desativadas são ignoradas", () => {
+  const state = createDefaultState();
+  state.rules = [
+    rule("a", { type: "boolean", value: true }),
+    { ...rule("b", { type: "boolean", value: false }), priority: 100 },
+  ];
+  assert.equal(
+    resolveRule(ruleField("Possui experiência com Java?"), state, {
+      domain: "example.test",
+    }).decision,
+    "skip",
+  );
+  state.rules[0]!.enabled = false;
+  assert.equal(
+    resolveRule(ruleField("Possui experiência com Java?"), state, {
+      domain: "example.test",
+    }).ruleId,
+    "b",
+  );
+});
+test("sinônimos configurados conectam variações e exclusões impedem resposta", () => {
+  const state = createDefaultState();
+  state.synonyms = {
+    "pt-BR": { relocation: ["mudança", "mudar de cidade"] },
+    en: { relocation: ["relocate", "relocation"] },
+  };
+  state.rules = [
+    {
+      ...rule("move", { type: "boolean", value: true }, ["mudança"]),
+      subject: "mudança",
+    },
+  ];
+  assert.equal(
+    resolveRule(ruleField("Você aceita mudar de cidade?"), state, {
+      domain: "example.test",
+    }).value,
+    "Sim",
+  );
+  assert.equal(
+    resolveRule(
+      ruleField("Are you willing to relocate?", "text", "en"),
+      state,
+      { domain: "example.test" },
+    ).value,
+    "Yes",
+  );
+  state.rules[0]!.excludedKeywords = ["cidade"];
+  assert.equal(
+    resolveRule(ruleField("Você aceita mudar de cidade?"), state, {
+      domain: "example.test",
+    }).decision,
+    "skip",
+  );
+});
+test("escopo de domínio/perfil, confiança intermediária e idioma são respeitados", () => {
+  const state = createDefaultState();
+  state.rules = [
+    {
+      ...rule("a", { type: "boolean", value: true }),
+      domains: ["example.test"],
+      profileIds: ["backend"],
+    },
+  ];
+  assert.equal(
+    resolveRule(ruleField("Possui experiência com Java?"), state, {
+      domain: "other.test",
+      profileId: "backend",
+    }).decision,
+    "skip",
+  );
+  assert.equal(
+    resolveRule(ruleField("Possui experiência com Java?"), state, {
+      domain: "example.test",
+    }).decision,
+    "skip",
+  );
+  state.settings.confidence.automaticMinimum = 99;
+  assert.equal(
+    resolveRule(ruleField("Possui experiência com Java?"), state, {
+      domain: "example.test",
+      profileId: "backend",
+    }).decision,
+    "suggest",
+  );
+  state.settings.confidence.fillMediumConfidence = true;
+  assert.equal(
+    resolveRule(ruleField("Possui experiência com Java?"), state, {
+      domain: "example.test",
+      profileId: "backend",
+    }).decision,
+    "fill-highlighted",
+  );
+});
+test("respostas discursivas são sugestões, mesmo com correspondência exata", () => {
+  const state = createDefaultState();
+  state.rules = [
+    {
+      ...rule(
+        "story",
+        { type: "long-text", value: { "pt-BR": "História salva." } },
+        ["Conte sobre sua experiência com Java"],
+      ),
+      insertion: "suggestion",
+    },
+  ];
+  const result = resolveRule(
+    ruleField("Conte sobre sua experiência com Java", "textarea"),
+    state,
+    { domain: "example.test" },
+  );
+  assert.equal(result.decision, "suggest");
+  assert.equal(result.value, "História salva.");
+});
+test("perguntas discursivas genéricas podem usar mapeamento explícito, sempre como sugestão", () => {
+  const state = createDefaultState();
+  state.rules = [
+    {
+      ...rule(
+        "about",
+        { type: "long-text", value: { "pt-BR": "Apresentação salva." } },
+        ["Conte sobre você"],
+      ),
+      subject: "Apresentação",
+      insertion: "suggestion",
+    },
+  ];
+  const result = resolveRule(ruleField("Conte sobre você", "textarea"), state, {
+    domain: "example.test",
+  });
+  assert.equal(result.decision, "suggest");
+  assert.equal(result.value, "Apresentação salva.");
+});
+test("salário não troca moeda ou período e qualificação profissional não é inferida", () => {
+  const state = createDefaultState();
+  state.rules = [
+    {
+      ...rule(
+        "salary",
+        { type: "salary", value: 2000, currency: "BRL", period: "month" },
+        ["Qual sua pretensão salarial anual USD?"],
+      ),
+      subject: "pretensão salarial",
+    },
+  ];
+  const salary = resolveRule(
+    ruleField("Qual sua pretensão salarial anual USD?", "number"),
+    state,
+    { domain: "example.test" },
+  );
+  assert.equal(salary.decision, "skip");
+  assert.match(salary.reason, /moeda|período/);
+  state.rules = [rule("bool", { type: "boolean", value: true })];
+  assert.equal(
+    resolveRule(ruleField("Possui experiência profissional com Java?"), state, {
+      domain: "example.test",
+    }).decision,
+    "skip",
+  );
+});
+test("experiência não implica disponibilidade, autorização ou certificação", () => {
+  const state = createDefaultState();
+  state.rules = [rule("experience", { type: "boolean", value: true })];
+  for (const question of [
+    "Aceita trabalhar com Java?",
+    "Are you willing to work with Java?",
+    "Possui autorização para trabalhar com Java?",
+    "Possui certificação Java?",
+  ])
+    assert.equal(
+      resolveRule(
+        ruleField(
+          question,
+          "text",
+          question.startsWith("Are") ? "en" : "pt-BR",
+        ),
+        state,
+        { domain: "example.test" },
+      ).decision,
+      "skip",
+      question,
+    );
+});

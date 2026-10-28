@@ -1,7 +1,14 @@
 import { inspectPage } from "./detector/inventory";
 import { planPersonalFields, fillPersonalFields } from "./filling/personal";
+import { planRuleFields } from "./context/fields";
+import {
+  suggestionPlan,
+  applySuggestion,
+  clearSuggestions,
+} from "./filling/suggestions";
 import { hasUndo, undoLast } from "./undo/history";
 import type { FillReport } from "../shared/filling";
+import type { RuleResolution } from "../core/matching/rules";
 import type { AnswerValue } from "../shared/types";
 declare global {
   interface Window {
@@ -29,6 +36,10 @@ if (!window.__candidaturasBridgeInstalled) {
         sendResponse(planPersonalFields());
         return false;
       }
+      if (message.type === "PLAN_RULE_FIELDS") {
+        sendResponse(planRuleFields());
+        return false;
+      }
       if (message.type === "GET_PAGE_SESSION") {
         sendResponse({
           ...(report ? { report } : {}),
@@ -37,16 +48,59 @@ if (!window.__candidaturasBridgeInstalled) {
         return false;
       }
       if (
-        message.type !== "FILL_PERSONAL_FIELDS" &&
-        message.type !== "UNDO_PERSONAL_FIELDS"
+        message.type === "GET_SUGGESTION_PLAN" &&
+        "suggestionId" in message &&
+        typeof message.suggestionId === "string"
+      ) {
+        sendResponse(suggestionPlan(message.suggestionId) ?? null);
+        return false;
+      }
+      if (
+        ![
+          "FILL_PERSONAL_FIELDS",
+          "UNDO_PERSONAL_FIELDS",
+          "APPLY_SUGGESTION",
+        ].includes(String(message.type))
       )
         return false;
       queue = queue
         .then(async () => {
           if (message.type === "UNDO_PERSONAL_FIELDS") {
             const result = await undoLast();
+            clearSuggestions();
             report = undefined;
             sendResponse({ undo: result });
+            return;
+          }
+          if (message.type === "APPLY_SUGGESTION") {
+            if (
+              !("suggestionId" in message) ||
+              typeof message.suggestionId !== "string" ||
+              !("resolution" in message)
+            ) {
+              sendResponse({ ok: false, error: "Sugestão inválida." });
+              return;
+            }
+            const id = message.suggestionId;
+            const applied = await applySuggestion(
+              id,
+              message.resolution as RuleResolution,
+            );
+            if (!applied.ok) {
+              sendResponse(applied);
+              return;
+            }
+            const item = report?.items.find((item) => item.suggestionId === id);
+            if (report && item) {
+              report.review--;
+              item.status = applied.result.status;
+              item.reason = applied.result.reason;
+              delete item.suggestionId;
+              delete item.suggestionPreview;
+              report[item.status]++;
+              report.undoAvailable = hasUndo();
+            }
+            sendResponse({ ok: true, ...(report ? { report } : {}) });
             return;
           }
           if (
@@ -56,7 +110,9 @@ if (!window.__candidaturasBridgeInstalled) {
             !("minimum" in message) ||
             typeof message.minimum !== "number" ||
             !("preserveExisting" in message) ||
-            typeof message.preserveExisting !== "boolean"
+            typeof message.preserveExisting !== "boolean" ||
+            !("resolutions" in message) ||
+            !Array.isArray(message.resolutions)
           ) {
             sendResponse({ error: "Mensagem de preenchimento inválida." });
             return;
@@ -65,6 +121,7 @@ if (!window.__candidaturasBridgeInstalled) {
             message.candidate as Record<string, AnswerValue>,
             message.minimum,
             message.preserveExisting,
+            message.resolutions as RuleResolution[],
           );
           sendResponse({ report });
         })

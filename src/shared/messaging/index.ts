@@ -12,7 +12,9 @@ export type ExtensionMessage = {
     | "ANALYZE_ACTIVE_TAB"
     | "FILL_ACTIVE_TAB"
     | "UNDO_ACTIVE_TAB"
-    | "GET_ACTIVE_SESSION";
+    | "GET_ACTIVE_SESSION"
+    | "APPLY_SUGGESTION_ACTIVE_TAB";
+  suggestionId?: string;
 };
 export type AnalysisResponse =
   { ok: true; analysis: PageAnalysis } | { ok: false; error: string };
@@ -27,7 +29,12 @@ export function isExtensionMessage(value: unknown): value is ExtensionMessage {
       "FILL_ACTIVE_TAB",
       "UNDO_ACTIVE_TAB",
       "GET_ACTIVE_SESSION",
-    ].includes(String(value.type))
+      "APPLY_SUGGESTION_ACTIVE_TAB",
+    ].includes(String(value.type)) &&
+    (value.type !== "APPLY_SUGGESTION_ACTIVE_TAB" ||
+      ("suggestionId" in value &&
+        typeof value.suggestionId === "string" &&
+        /^[a-zA-Z0-9-]{1,120}$/.test(value.suggestionId)))
   );
 }
 export function isPageAnalysis(value: unknown): value is PageAnalysis {

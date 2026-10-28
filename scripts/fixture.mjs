@@ -15,11 +15,13 @@ export async function startFixture(port = 4175) {
     try {
       const path = new URL(req.url ?? "/", "http://localhost").pathname;
       const file =
-        path === "/react.js"
-          ? "work/react-fixture.js"
-          : path === "/native.js"
-            ? "tests/fixtures/forms/native.js"
-            : "tests/fixtures/forms/mvp.html";
+        path === "/rules.html"
+          ? "tests/fixtures/forms/rules.html"
+          : path === "/react.js"
+            ? "work/react-fixture.js"
+            : path === "/native.js"
+              ? "tests/fixtures/forms/native.js"
+              : "tests/fixtures/forms/mvp.html";
       res.setHeader(
         "Content-Type",
         file.endsWith(".js")
@@ -42,6 +44,7 @@ if (
   process.argv[1] &&
   pathToFileURL(process.argv[1]).href === import.meta.url
 ) {
-  await startFixture();
-  console.log("Formulário fictício: http://127.0.0.1:4175");
+  const port = Number(process.argv[2] ?? 4175);
+  await startFixture(port);
+  console.log("Formulário fictício: http://127.0.0.1:" + port);
 }

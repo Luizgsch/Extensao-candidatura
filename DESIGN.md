@@ -147,17 +147,23 @@ A operação oferece Meus dados, Experiências, Minhas respostas, Perfis, Prefer
 
 Avisos usam fundo bege mais denso e padding de 18px. Registros são separados por linhas, com cabeçalho flexível e texto preservando quebras de linha. Estados vazios usam texto explicativo, sem contagens inventadas. O popup apresenta ações de análise, preenchimento e desfazer com estados reais de disponibilidade.
 
+### Minhas respostas
+
+O formulário de resposta mantém os campos e componentes existentes. “Inserção” oferece “Automática quando confiável” e “Somente sugerir”. Respostas do tipo “Texto longo — sugestão” são salvas como sugestão, mesmo quando a opção automática está selecionada. O texto de apoio esclarece que perguntas discursivas nunca são preenchidas automaticamente e que prioridade ordena sugestões.
+
+“Onde usar” oferece “Todos os sites” ou “Somente os sites abaixo”. “Sites permitidos — domínios separados por vírgula” fica desabilitado no primeiro caso; no segundo, exige domínios explícitos válidos. Palavras-chave, expressões impeditivas e escopos orientam a correspondência real, sem prometer suporte a seleções ou frames.
+
 ### Análise, preenchimento e revisão no popup
 
-“Preencher página” é a ação principal; “Analisar página” usa a variante secundária. As duas ficam lado a lado, com intervalo de 10px. “Desfazer último preenchimento” é secundária, ocupa a largura disponível e fica 10px abaixo. O seletor de perfil e o currículo recomendado antecedem as ações; nesta etapa, o preenchimento usa dados gerais.
+“Preencher página” é a ação principal; “Analisar página” usa a variante secundária. As duas ficam lado a lado, com intervalo de 10px. “Desfazer último preenchimento” é secundária, ocupa a largura disponível e fica 10px abaixo. O seletor de perfil e o currículo recomendado antecedem as ações; o preenchimento usa dados gerais e respostas ativas do perfil selecionado.
 
-O preenchimento reconhece dados gerais em inputs simples com nomes em português e inglês. Selects, textareas, frames, regras personalizadas e correspondência fuzzy ainda não fazem parte do preenchimento. A análise permanece diagnóstica e não altera campos. O envio da candidatura é sempre manual.
+O preenchimento reconhece dados gerais em inputs simples com nomes em português e inglês. Regras cadastradas, palavras-chave, sinônimos e escopos de perfil e domínio participam da correspondência. Respostas confiáveis em inputs simples podem ser inseridas automaticamente conforme a regra; correspondências próximas exigem revisão. Perguntas discursivas e textareas recebem somente sugestões, inseridas por clique explícito. Seleções e frames continuam manuais. A análise permanece diagnóstica e não altera campos. O envio da candidatura é sempre manual.
 
 As oito contagens são Encontrados, Editáveis, Reconhecidos, Preenchidos, Revisão, Preservados, Desconhecidos e Não suportados. Começam com travessão. A análise validada atualiza somente encontrados e editáveis; o relatório de preenchimento validado atualiza todas, somando falhas à contagem de revisão. Desfazer limpa as contagens e informa restaurações, alterações posteriores preservadas e falhas.
 
 Durante uma operação, analisar, preencher e desfazer ficam desabilitados, assim como o seletor de perfil. O status usa `role="status"` e `aria-live="polite"`, com progresso textual, resultado ou erro. Desfazer só fica disponível quando a sessão permite e dura até recarregar a página; alterações posteriores são preservadas. Ao reabrir o popup, a extensão recupera o último relatório da sessão quando disponível.
 
-“Revisar campos” usa `details` nativo, oculto enquanto não há itens. Seu `summary` oferece altura mínima de 44px. A lista tem altura máxima de 220px e rolagem; cada linha mostra rótulo, estado e motivo, sem inventar resultados. As linhas usam texto de 12px, divisores e quebra de palavras longas.
+“Revisar campos” usa `details` nativo, oculto enquanto não há itens. Seu `summary` oferece altura mínima de 44px. A lista tem altura máxima de 220px e rolagem; cada linha mostra rótulo, estado e motivo, sem inventar resultados. As linhas usam texto de 12px, divisores e quebra de palavras longas. Quando há regra correspondente, exibem seu nome e score no formato “Regra: nome · 97/100”. Sugestões incluem os primeiros 500 caracteres da resposta, com indicação de resposta completa quando truncadas, e o botão secundário “Inserir sugestão”. O clique insere a resposta completa; o nome acessível do botão inclui o rótulo do campo. Durante operações e na prévia HTTP, esses botões ficam desabilitados.
 
 Na prévia HTTP, analisar, preencher e desfazer ficam desabilitados. O status explica que análise e preenchimento exigem a extensão instalada. A nota da análise informa limites da página principal, frames não lidos e anexos que exigem seleção manual.
 
@@ -174,9 +180,9 @@ Movimento é discreto: hover da navegação dura 0.16s; feedback entra em 0.2s, 
 
 ### Don't:
 
-- Don't apresentar preenchimento de inputs simples como suporte a selects, textareas, frames, regras personalizadas ou correspondência fuzzy.
+- Don't apresentar sugestões discursivas como preenchimento automático, nem prometer automação de seleções ou frames.
 - Don't inserir métricas fictícias ou dados pessoais no repositório.
 - Don't substituir divisores e superfícies por uma coleção de cartões com sombra.
 - Don't adicionar animação quando a preferência de movimento reduzido estiver ativa.
 
-Privacidade oferece exportação, importação com revisão em linha, restauração de preferências e exclusão com confirmação explícita. Controles reutilizam a identidade e componentes existentes; a parte 6 preserva paleta e fontes locais e compacta somente a hierarquia e a composição do popup.
+Privacidade oferece exportação, importação com revisão em linha, restauração de preferências e exclusão com confirmação explícita. Controles reutilizam a identidade e componentes existentes; a parte 7 preserva paleta, fontes locais e composição compacta do popup ao expor regras e sugestões revisáveis.

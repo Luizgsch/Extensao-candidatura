@@ -1,16 +1,41 @@
-export type NativeTextControl = HTMLInputElement;
-export function canWrite(element: HTMLInputElement): boolean {
+import { isVisible } from "./visibility";
+export type NativeTextControl = HTMLInputElement | HTMLTextAreaElement;
+export function isSimpleControl(
+  element: Element,
+): element is NativeTextControl {
+  if (
+    element.getAttribute("role") === "combobox" ||
+    element.getAttribute("aria-haspopup") === "listbox"
+  )
+    return false;
   return (
-    element.isConnected &&
+    element instanceof HTMLTextAreaElement ||
+    (element instanceof HTMLInputElement &&
+      ["text", "email", "tel", "url", "number", "date"].includes(element.type))
+  );
+}
+export function canWrite(element: NativeTextControl): boolean {
+  return (
+    isSimpleControl(element) &&
+    isVisible(element) &&
+    !element.closest(
+      '[hidden],[aria-hidden="true"],[aria-disabled="true"],[aria-readonly="true"]',
+    ) &&
+    window.getComputedStyle(element).visibility !== "hidden" &&
     !element.matches(":disabled") &&
     !element.readOnly &&
     element.getAttribute("aria-disabled") !== "true" &&
     !element.closest("[inert]")
   );
 }
-export function setNativeValue(element: HTMLInputElement, value: string): void {
+export function setNativeValue(
+  element: NativeTextControl,
+  value: string,
+): void {
   const setter = Object.getOwnPropertyDescriptor(
-    HTMLInputElement.prototype,
+    element instanceof HTMLTextAreaElement
+      ? HTMLTextAreaElement.prototype
+      : HTMLInputElement.prototype,
     "value",
   )?.set;
   if (!setter) throw new Error("Controle sem setter nativo.");

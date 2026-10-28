@@ -1,3 +1,8 @@
+import {
+  resolveRule,
+  isRuleField,
+  type RuleScope,
+} from "../core/matching/rules";
 import { createDefaultState } from "../defaults/state";
 import { isPageAnalysis, type AnalysisResponse } from "../shared/messaging";
 import { personalKeys } from "../core/matching/personal-fields";
@@ -7,9 +12,11 @@ export type TabOperation =
   | "ANALYZE_ACTIVE_TAB"
   | "FILL_ACTIVE_TAB"
   | "UNDO_ACTIVE_TAB"
-  | "GET_ACTIVE_SESSION";
+  | "GET_ACTIVE_SESSION"
+  | "APPLY_SUGGESTION_ACTIVE_TAB";
 export async function actOnActiveTab(
   operation: TabOperation,
+  suggestionId?: string,
 ): Promise<unknown> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id || !tab.url)
@@ -56,30 +63,78 @@ export async function actOnActiveTab(
       const result = await send({ type: "UNDO_PERSONAL_FIELDS" });
       return { ok: true, ...(result as object) };
     }
-    const keys = await send({ type: "PLAN_PERSONAL_FIELDS" });
-    if (
-      !Array.isArray(keys) ||
-      !keys.every(
-        (key) => typeof key === "string" && personalKeys.includes(key),
-      )
-    )
-      return {
-        ok: false,
-        error: "Plano de campos inválido. Nenhum dado foi enviado.",
-      };
-    const stored = await chrome.storage.local.get("applicationState");
+
+    const stored = await chrome.storage.local.get([
+      "applicationState",
+      "selectedProfileId",
+    ]);
     const state =
       stored.applicationState === undefined
         ? createDefaultState()
         : parseState(stored.applicationState);
+    const selected = state.profiles.find(
+      (profile) => profile.id === stored.selectedProfileId,
+    );
+    const scope: RuleScope = {
+      domain: url.hostname,
+      ...(selected ? { profileId: selected.id } : {}),
+    };
+    if (operation === "APPLY_SUGGESTION_ACTIVE_TAB") {
+      if (!suggestionId) return { ok: false, error: "Sugestão inválida." };
+      const plan = await send({ type: "GET_SUGGESTION_PLAN", suggestionId });
+      if (
+        typeof plan !== "object" ||
+        plan === null ||
+        !("field" in plan) ||
+        !isRuleField(plan.field) ||
+        !("ruleId" in plan) ||
+        typeof plan.ruleId !== "string"
+      )
+        return {
+          ok: false,
+          error: "Campo alterado ou sugestão expirada. Preencha novamente.",
+        };
+      const resolution = resolveRule(plan.field, state, scope);
+      if (
+        resolution.ruleId !== plan.ruleId ||
+        resolution.decision === "skip" ||
+        resolution.value === undefined
+      )
+        return {
+          ok: false,
+          error:
+            "Regra alterada, desativada ou ambígua. Preencha novamente antes de inserir.",
+        };
+      return send({ type: "APPLY_SUGGESTION", suggestionId, resolution });
+    }
+    const keys = await send({ type: "PLAN_PERSONAL_FIELDS" }),
+      questions = await send({ type: "PLAN_RULE_FIELDS" });
+    if (
+      !Array.isArray(keys) ||
+      !keys.every(
+        (key) => typeof key === "string" && personalKeys.includes(key),
+      ) ||
+      !Array.isArray(questions) ||
+      questions.length > 1000 ||
+      !questions.every(isRuleField)
+    )
+      return {
+        ok: false,
+        error:
+          "Plano de campos inválido ou muito grande. Nenhum dado foi enviado.",
+      };
     const candidate = Object.fromEntries(
       keys
         .filter((key) => Object.hasOwn(state.candidate, key))
         .map((key) => [key, state.candidate[key]]),
     );
+    const resolutions = questions.map((field) =>
+      resolveRule(field, state, scope),
+    );
     const result = await send({
       type: "FILL_PERSONAL_FIELDS",
       candidate,
+      resolutions,
       minimum: state.settings.confidence.automaticMinimum,
       preserveExisting: state.settings.preserveExisting,
     });

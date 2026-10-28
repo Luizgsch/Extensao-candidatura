@@ -133,7 +133,7 @@ function keys(text: string): string[] {
     .filter(([, values]) => values.includes(normalized))
     .map(([key]) => key);
 }
-export function matchPersonalField(signals: PersonalSignals): PersonalMatch {
+export function isBlockedSignals(signals: PersonalSignals): boolean {
   const unsafe = [
     "password",
     "senha",
@@ -163,10 +163,14 @@ export function matchPersonalField(signals: PersonalSignals): PersonalMatch {
       "one-time-code",
     ].includes(semanticToken)
   )
-    return { score: 0, ambiguous: false };
+    return true;
   const all = Object.values(signals).join(" ");
   if (unsafe.some((term) => containsPhrase(normalizeSignal(all), term)))
-    return { score: 0, ambiguous: false };
+    return true;
+  return false;
+}
+export function matchPersonalField(signals: PersonalSignals): PersonalMatch {
+  if (isBlockedSignals(signals)) return { score: 0, ambiguous: false };
   const label = keys(signals.label),
     name = keys(signals.name),
     id = keys(signals.id),

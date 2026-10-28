@@ -48,3 +48,7 @@ Gerenciamento de dados locais com validação, backups completos ou de preferên
 ## Estado implementado — parte 6
 
 Preenchimento sob comando em campos nativos simples PT/EN. Preserve dados existentes por padrão e ignore correspondências conflitantes, referências de terceiros e autenticação. Resultado por campo e destaque temporário sem persistir estilos. Desfazer em memória protege edições posteriores; sessão encerrada ao recarregar. Regras configuráveis, seleções e componentes customizados permanecem fora do MVP.
+
+## Estado implementado — parte 7
+
+Regras configuráveis e sinônimos conectados ao preenchimento, com classificação PT/EN, tipos, confiança, prioridade, exclusões e escopos. Textos longos e textarea são apenas sugestões com inserção explícita e nova validação. Perfil selecionado filtra regras com escopo e respeita overrides existentes; edição avançada de perfis permanece futura. Dados gerais cadastrados têm precedência. Campos ocultos por transparência também são protegidos. Seleções, componentes customizados e frames seguem fora desta etapa.

@@ -16,12 +16,15 @@ function updateControls() {
     button.disabled =
       preview || busy || (button.id === "undo" && !undoAvailable);
   select.disabled = busy;
+  document
+    .querySelectorAll<HTMLButtonElement>("[data-suggestion]")
+    .forEach((button) => (button.disabled = busy || preview));
 }
 function showResume() {
   const profile = profiles.find((p) => p.id === select.value);
   $("resume").textContent = profile?.preferredResumeName
     ? "Currículo recomendado: " + profile.preferredResumeName
-    : "Preenchimento usa dados gerais nesta etapa.";
+    : "Dados gerais e respostas ativas do perfil selecionado.";
 }
 void loadState()
   .then(async (state) => {
@@ -86,7 +89,7 @@ function showReport(report: FillReport) {
   $("editable").textContent = String(report.editable);
   undoAvailable = report.undoAvailable;
   note.textContent =
-    "Nesta etapa: dados gerais em inputs simples. Seleções, textos longos e frames ficam para revisão manual.";
+    "Dados e respostas em inputs simples. Textos longos exigem clique; seleções e frames continuam manuais.";
   const labels = {
     filled: "Preenchido",
     preserved: "Preservado",
@@ -102,12 +105,32 @@ function showReport(report: FillReport) {
     const description = document.createElement("span");
     description.textContent = labels[item.status] + ": " + item.reason;
     li.append(title, description);
+    if (item.ruleName) {
+      const meta = document.createElement("span");
+      meta.textContent =
+        "Regra: " + item.ruleName + " · " + String(item.score ?? 0) + "/100";
+      li.append(meta);
+    }
+    if (item.suggestionId && item.suggestionPreview !== undefined) {
+      const text = document.createElement("p");
+      text.textContent = item.suggestionPreview;
+      const button = document.createElement("button");
+      button.className = "secondary";
+      button.dataset.suggestion = item.suggestionId;
+      button.textContent = "Inserir sugestão";
+      button.setAttribute("aria-label", "Inserir sugestão: " + item.label);
+      button.addEventListener(
+        "click",
+        () => void run("APPLY_SUGGESTION_ACTIVE_TAB", item.suggestionId),
+      );
+      li.append(text, button);
+    }
     return li;
   });
   $("field-results").replaceChildren(...items);
   $("field-details").hidden = items.length === 0;
 }
-async function run(type: string) {
+async function run(type: string, suggestionId?: string) {
   if (busy || preview) return;
   busy = true;
   updateControls();
@@ -120,7 +143,10 @@ async function run(type: string) {
           ? "Analisando a página…"
           : "";
   try {
-    const value: unknown = await chrome.runtime.sendMessage({ type });
+    const value: unknown = await chrome.runtime.sendMessage({
+      type,
+      ...(suggestionId ? { suggestionId } : {}),
+    });
     if (typeof value !== "object" || value === null || !("ok" in value))
       throw new Error("Resposta inválida. Reabra a extensão.");
     if (value.ok !== true)
@@ -145,7 +171,7 @@ async function run(type: string) {
           : "") +
         (value.analysis.manualUploads ? " Anexos exigem seleção manual." : "");
     } else if (
-      type === "FILL_ACTIVE_TAB" &&
+      ["FILL_ACTIVE_TAB", "APPLY_SUGGESTION_ACTIVE_TAB"].includes(type) &&
       "report" in value &&
       isFillReport(value.report)
     ) {

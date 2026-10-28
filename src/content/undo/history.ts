@@ -1,7 +1,11 @@
-import { canWrite, setNativeValue } from "../controls/native";
+import {
+  canWrite,
+  setNativeValue,
+  type NativeTextControl,
+} from "../controls/native";
 import type { UndoReport } from "../../shared/filling";
 export interface UndoEntry {
-  element: HTMLInputElement;
+  element: NativeTextControl;
   before: string;
   applied: string;
 }

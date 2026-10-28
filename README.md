@@ -1,6 +1,6 @@
 # Assistente de Candidaturas
 
-Extensão local Manifest V3. Parte 6: primeiro preenchimento funcional de dados gerais em inputs nativos simples, iniciado pelo usuário.
+Extensão local Manifest V3. Parte 7: dados gerais e respostas configuráveis em inputs simples, com sugestões revisadas por clique.
 
 ## Ambiente
 
@@ -12,7 +12,7 @@ Execute npm run build. No Chrome ou Brave, abra a página de extensões, ative m
 
 ## Interface disponível
 
-Dados pessoais, contato, perfil profissional, diversidade opcional, formação principal e técnica, experiências com descrições amplas, respostas de todos os tipos previstos, perfis, sinônimos e preferências. Registros podem ser criados, editados e excluídos. Associação avançada de perfis, correspondência de respostas configuráveis e seleção de opções continuam nas próximas etapas.
+Dados pessoais, contato, perfil profissional, diversidade opcional, formação principal e técnica, experiências com descrições amplas, respostas de todos os tipos previstos, perfis, sinônimos e preferências. Registros podem ser criados, editados e excluídos. Associação avançada de perfis, seleção de opções e adaptações por plataforma continuam nas próximas etapas.
 
 O popup permite selecionar um perfil, abrir configurações e analisar campos nativos visíveis da aba principal após comando. Preencher página aplica dados gerais conhecidos em inputs text/email/tel/url/number/date, após validar rótulo, tipo e limite de confiança. Contagens não analisadas aparecem como traço. Campos em frames e componentes customizados ainda não são analisados. A análise não lê valores nem altera o formulário.
 
@@ -50,10 +50,24 @@ Execute npm run test:data para verificar exportação, importação, cancelament
 
 Recarregue a extensão e a página da candidatura após atualizar. Cadastre seus dados em Configurações, abra o formulário HTTP/HTTPS e clique no ícone da extensão. Preencher página faz análise e preenchimento em uma ação. Analisar página continua sem alterar valores. Revisar campos mostra o resultado de cada campo, sem reproduzir respostas pessoais.
 
-Valores já preenchidos são preservados por padrão. Conflitos de identificação, campos de terceiros, perguntas desconhecidas, tipos incompatíveis e dados ausentes ficam para revisão. Selects, radios, checkboxes, textarea, componentes customizados e frames ainda não são preenchidos. Regras e sinônimos cadastrados serão conectados ao motor na parte 7. Perfis indicam currículo recomendado; preenchimento nesta versão usa dados gerais. Nenhum upload ou envio é acionado.
+Valores já preenchidos são preservados por padrão. Conflitos de identificação, campos de terceiros, perguntas desconhecidas, tipos incompatíveis e dados ausentes ficam para revisão. Selects, radios, checkboxes, textarea, componentes customizados e frames ainda não são preenchidos. Regras e sinônimos cadastrados estão conectados ao motor a partir da parte 7. Perfis indicam currículo recomendado e filtram regras com escopo de perfil; personalização avançada dos perfis continua em etapa posterior. Nenhum upload ou envio é acionado.
 
 Desfazer último preenchimento restaura apenas a última operação que alterou campos. Repetir uma operação sem alterações mantém o histórico anterior. Edições posteriores e campos desconectados são preservados e informados como conflitos. Recarregar ou navegar encerra o histórico em memória. Eventos input/change atualizam campos controlados; compatibilidade validada com React real em fixture, sem alegar suporte universal a todos os frameworks ou sites.
 
 Execute npm run fixture para abrir formulário local fictício em http://127.0.0.1:4175. Instale a extensão no navegador de teste, abra essa página e use o popup. React é dependência apenas dos testes e não integra o pacote da extensão.
 
 Execute npm run test:fill para testes reais no Edge: PT/EN, React controlado, eventos, campos preservados, ambiguidade, autenticação, terceiros, restrições nativas, máscaras rejeitadas, novos campos após comando, desfazer, conflitos manuais e ausência de envio. Acesso ao servidor é autorizado apenas no manifesto copiado de teste; pacote real mantém activeTab sem acesso permanente a todos os sites. Validação direta no Chrome e Brave permanece pendente.
+
+## Respostas configuráveis — parte 7
+
+Em Minhas respostas, defina assunto (ex.: Java), palavras-chave, tipo e resposta. Perguntas sobre existência de experiência usam sim/não; duração usa anos de experiência. Configure as duas respostas separadamente. Variações normalizadas e sinônimos são aceitos, com verificação de intenção e palavras relevantes. Experiência não implica disponibilidade, autorização ou certificação.
+
+Regras desativadas e fora do domínio/perfil são ignoradas. Onde usar limita domínios exatos, sem herdar automaticamente subdomínios. Inserção permite preenchimento automático confiável ou somente sugestão. Prioridade ordena candidatos com pontuação igual, sem aumentar confiança ou mascarar ambiguidades. Correspondências próximas não preenchem. Palavras excludentes são verificadas antes da seleção.
+
+Sinônimos são editados em Preferências. Use a mesma chave de assunto nos dois idiomas para conectar traduções: por exemplo, relocation = mudança, mudar de cidade em português; relocation = relocate em inglês. A pontuação é indicador determinístico das regras, não probabilidade de acerto. Limiares e preenchimento intermediário seguem Preferências. Campos ambíguos, tipos incompatíveis e perguntas compostas sem regra explícita continuam manuais.
+
+Respostas longas e textarea aparecem em Revisar campos com prévia de até 500 caracteres. Inserir sugestão exige clique e insere a resposta completa salva. Antes disso, campo, edição posterior, visibilidade, regra, perfil, domínio e conteúdo são revalidados. Regra alterada/desativada ou campo modificado exige nova análise. Cada inserção manual é operação separada para Desfazer.
+
+Dados gerais têm precedência quando cadastrados. Regras podem suprir dados gerais ausentes. Respostas em texto precisam de tradução para o idioma do campo; sim/não é apresentado em português ou inglês. Salários não são convertidos entre moedas ou períodos. Selects, radios, checkboxes, comboboxes e frames continuam para próximas etapas. Campos transparentes ou em ancestral transparente são excluídos, inclusive quando ocultados depois da sugestão.
+
+Execute npm run test:rules para os testes reais no Edge. Execute npm run fixture:rules e abra http://127.0.0.1:4177/rules.html para formulário fictício, usando a extensão instalada. Testes usam dados fictícios e permissões de host somente no pacote isolado de teste.

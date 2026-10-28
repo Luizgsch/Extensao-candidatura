@@ -17,8 +17,8 @@ chrome.runtime.onMessage.addListener(
     void ready
       .then(async () => {
         if (message.type === "GET_STATUS")
-          return { phase: 6, fillingEnabled: true, analysisEnabled: true };
-        return actOnActiveTab(message.type);
+          return { phase: 7, fillingEnabled: true, analysisEnabled: true };
+        return actOnActiveTab(message.type, message.suggestionId);
       })
       .then(sendResponse)
       .catch(() =>

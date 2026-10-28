@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Assistente de Candidaturas",
-  "version": "0.4.0",
-  "description": "Preencha dados gerais em campos simples, revise e desfaça. Dados locais; envio manual.",
+  "version": "0.5.0",
+  "description": "Preencha dados e respostas configuráveis, revise sugestões e desfaça. Dados locais; envio manual.",
   "permissions": ["storage", "activeTab", "scripting"],
   "background": {
     "service_worker": "background.js"

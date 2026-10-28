@@ -55,3 +55,13 @@ Módulo personal-fields.ts combina rótulo, aria-label/labelledby, identificador
 Setter nativo do protótipo e eventos input/change atualizam controles. Verificação confirma manutenção do valor e validity; rejeição nativa retorna ao anterior quando possível. Transformação pelo site é marcada como falha, mantendo valor observado no histórico para permitir desfazer. Animação temporária não altera estilo inline. Histórico guarda valores anterior/aplicado da última operação com alterações; undo verifica conexão, editabilidade e igualdade antes de restaurar. Não há clique em envio, avanço de etapa ou consentimento.
 
 Fixture local inclui inputs nativos e React controlado real. Testes isolados no Edge validam fluxo e limites; Chrome/Brave ainda pendentes. React é apenas dependência de desenvolvimento e não é incluído no build da extensão.
+
+## Atualização — parte 7
+
+core/classification separa intenção e tipo esperado; core/matching/rules normaliza assuntos, palavras-chave e sinônimos, aplica exclusões e escopo, verifica compatibilidade e classifica candidatos. Prioridade desempata ordenação, sem alterar score; decideMatch mantém bloqueio de pontuações próximas. Perguntas negativas, requisitos numéricos e compostas exigem regra explícita em vez de inferir respostas. Idioma, moeda, período e intenção são barreiras adicionais.
+
+Content script envia RuleField (identificador por documento, pergunta, tipo, idioma e fingerprint) ao background. Regras e perfis completos ficam no background. Só a resposta selecionada necessária a cada campo ou sugestão é devolvida. Dados gerais presentes têm precedência; regra pode atender campo conhecido sem dado cadastrado. Nenhuma regra arbitrária altera campo protegido ou seleção customizada.
+
+Sugestões são guardadas por documento. Popup mostra prévia até 500 caracteres e score/100. Inserção explícita solicita novo plano, reavalia regra com estado atual e compara conteúdo salvo na proposta; verifica campo, tipo, edição posterior e visibilidade. Textarea usa setter nativo próprio e eventos input/change. Desfazer trata input e textarea e protege alterações posteriores. Novo preenchimento, undo ou navegação invalida sugestões anteriores. Não há persistência de respostas de página ou histórico no armazenamento.
+
+controls/visibility é compartilhado pelo inventário e escrita; bloqueia opacity zero no elemento ou ancestral, além de estados ocultos. isSimpleControl exclui combobox/listbox e controles previstos para fase seguinte. Testes isolados no Edge cobrem fluxo de regras, UI de cadastro, escopos, revalidação, escrita manual, textarea, transparência, tipos e ausência de envio. Publicação e validação direta em Chrome/Brave continuam pendentes.

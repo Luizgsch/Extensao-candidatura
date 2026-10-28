@@ -4,6 +4,10 @@ export interface FieldOutcome {
   label: string;
   status: FieldStatus;
   reason: string;
+  ruleName?: string;
+  score?: number;
+  suggestionId?: string;
+  suggestionPreview?: string;
 }
 export interface FillReport {
   found: number;

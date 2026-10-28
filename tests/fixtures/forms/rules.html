@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="pt-BR">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>Regras — formulário fictício</title
+  ><style>
+    body {
+      font: 16px system-ui;
+      max-width: 720px;
+      margin: 24px auto;
+      padding: 20px;
+    }
+    label {
+      display: block;
+      margin: 18px 0;
+    }
+    input,
+    textarea,
+    select {
+      display: block;
+      width: 95%;
+      padding: 10px;
+    }
+    textarea {
+      min-height: 120px;
+    }
+    input[type="checkbox"] {
+      width: auto;
+    }
+    button {
+      padding: 12px;
+    }
+  </style>
+  <h1>Perguntas fictícias de candidatura</h1>
+  <p>Dados exclusivamente de teste. Envio não produz candidatura real.</p>
+  <form id="application">
+    <label
+      >Você possui experiência com Java?<input
+        id="custom-combobox"
+        role="combobox"
+        aria-expanded="false"
+    /></label>
+    <label
+      >Você possui experiência com Java?<input
+        id="transparent-rule"
+        style="opacity: 0"
+    /></label>
+    <div style="opacity: 0">
+      <label
+        >Você possui experiência com Java?<input id="transparent-parent"
+      /></label>
+    </div>
+    <label
+      >E-mail<input
+        type="email"
+        id="transparent-email"
+        style="opacity: 0" /></label
+    ><label>Aceita trabalhar com Java?<input id="willing-java" /></label>
+    <label>Você possui experiência com Java?<input id="java-bool" /></label
+    ><label
+      >Quantos anos de experiência com Java?<input
+        type="number"
+        id="java-years" /></label
+    ><label
+      >Anos de experiência com Java<input
+        type="number"
+        id="known-years" /></label
+    ><label lang="en"
+      >Do you have experience with Java?<input id="java-bool-en" /></label
+    ><label lang="en"
+      >How many years of experience with Java?<input
+        type="number"
+        id="java-years-en" /></label
+    ><label>Não possui experiência com Java?<input id="negative" /></label
+    ><label
+      >Possui pelo menos 5 anos de experiência com Java?<input
+        id="threshold" /></label
+    ><label>Possui experiência com Java e Python?<input id="compound" /></label
+    ><label>Possui certificação em Java?<input id="certification" /></label
+    ><label>Possui experiência com JavaScript?<input id="javascript" /></label
+    ><label>Possui experiência com SQL?<input id="sql" /></label
+    ><label>Possui experiência com Docker?<input id="docker" /></label
+    ><label>Você aceita mudar de cidade?<input id="relocation" /></label
+    ><label lang="en"
+      >Are you willing to relocate?<input id="relocation-en" /></label
+    ><label>Conte sobre você<textarea id="story"></textarea></label
+    ><label lang="en"
+      >Tell us about your experience with Java<textarea
+        id="story-en"
+      ></textarea></label
+    ><label lang="en"
+      >Describe Java experience<textarea
+        id="missing-translation"
+      ></textarea></label
+    ><label>Possui experiência com Rust?<input id="rust" /></label
+    ><label>Possui experiência com Go?<input id="go" /></label
+    ><label
+      >Possui experiência com Java?<input id="otp" autocomplete="one-time-code"
+    /></label>
+    <fieldset>
+      <legend>Referências profissionais</legend>
+      <label>Possui experiência com Java?<input id="reference" /></label>
+    </fieldset>
+    <label
+      >Quantos anos de experiência com Java?<input
+        type="number"
+        max="1"
+        id="invalid-years" /></label
+    ><label>Possui disponibilidade para viagem?<input id="travel" /></label
+    ><label
+      >Qual sua pretensão salarial anual USD?<input
+        type="number"
+        id="salary" /></label
+    ><input type="checkbox" id="terms" /><label for="terms">Aceito termos</label
+    ><button type="submit">Enviar candidatura</button>
+  </form>
+  <script>
+    window.submissions = 0;
+    document.querySelector("form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      window.submissions++;
+    });
+  </script>
+</html>
