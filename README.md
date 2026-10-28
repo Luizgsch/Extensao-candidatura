@@ -95,3 +95,7 @@ Campos ensinados nas configurações permite mudar resposta/caminho, autorizar a
 O mapeamento apenas identifica a resposta: compatibilidade de tipos, exclusões, confidence, sugestões discursivas, preservação e limites de seleção continuam ativos. Perguntas negativas, compostas e requisitos numéricos precisam de regra específica. Aceites exigem autorização explícita; ensinar não habilita envio ou upload.
 
 Parte 9 recebeu somente verificação TypeScript e build. A seleção visual, persistência por site, conflitos e experiência em navegadores serão validados na parte 13. Recarregue extensão e página para atualizar o content script.
+
+## Complemento de cadastro pessoal
+
+Há um modo opcional separado, descrito em docs/personal-preset.md. npm run build permanece público e sem dados pessoais. npm run build:personal depende de arquivo privado ignorado pelo Git; essa variante local exibe Carregar meu cadastro em Meus dados e não deve ser distribuída.

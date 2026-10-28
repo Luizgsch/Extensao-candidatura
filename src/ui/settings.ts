@@ -1,3 +1,4 @@
+import { renderPersonalPreset, bindPersonalPreset } from "../personal/preset";
 import { renderMappings, bindMappings } from "./mappings";
 import { editAnswer } from "../storage/answers";
 import type { AppState, AnswerValue, LocalizedText } from "../shared/types";
@@ -232,6 +233,7 @@ function body(): string {
   if (page === "ensinados") return renderMappings(state);
   if (page === "dados")
     return (
+      renderPersonalPreset() +
       '<form id="personal">' +
       section(
         "Identificação",
@@ -691,6 +693,7 @@ function restoreFocus() {
   target?.focus();
 }
 function bind() {
+  bindPersonalPreset(state, persist, notify);
   bindMappings(state, { save: persist, notify, confirmDiscard, restoreFocus });
   bindPrivacy();
   document.querySelectorAll<HTMLButtonElement>("[data-page]").forEach(

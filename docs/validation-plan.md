@@ -23,3 +23,10 @@ Até a conclusão, seleções e observação dinâmica são experimentais. Revis
 - Unicidade de label/name/id/seção, IDs dinâmicos, perguntas alteradas, múltiplos campos semelhantes e mapeamentos conflitantes.
 - Revalidação de sugestões aprendidas, regras removidas/inativas, troca de perfil/site e conflitos de edição em outra aba.
 - Teclado, foco, Shadow DOM, acessibilidade e telas pequenas. Fluxo completo no Chrome e Brave reais.
+
+## Complemento pessoal
+
+- Botão disponível apenas na variante privada; nenhum dado pessoal embutido no JavaScript ou no build público.
+- Carregar todas as coleções pessoais, confirmar atualizações, manter preferências/mapeamentos e não duplicar IDs em cliques repetidos.
+- Preservar tipos, traduções, referências entre perfis/regras/experiências e demais registros existentes.
+- Prévia efêmera versus persistência na extensão; falhas de arquivo, versão pública sem arquivo, edição posterior e publicação segura.

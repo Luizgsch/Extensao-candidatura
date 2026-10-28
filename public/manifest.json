@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Assistente de Candidaturas",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Dados, respostas e campos ensinados por site. Recursos novos experimentais; envio manual.",
   "permissions": ["storage", "activeTab", "scripting"],
   "background": {

@@ -5,3 +5,6 @@ work/
 .env*
 
 .impeccable/review/
+
+# Configuração pessoal: nunca distribuir ou versionar.
+/private/

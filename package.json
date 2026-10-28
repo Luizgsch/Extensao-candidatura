@@ -1,6 +1,6 @@
 {
   "name": "extensao-linkedin",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -16,7 +16,8 @@
     "test:fill": "npm run build && node scripts/verify-fill.mjs",
     "fixture": "node scripts/fixture.mjs",
     "test:rules": "npm run build && node scripts/verify-rules.mjs",
-    "fixture:rules": "node scripts/fixture.mjs 4177"
+    "fixture:rules": "node scripts/fixture.mjs 4177",
+    "build:personal": "node scripts/build.mjs --personal"
   },
   "repository": {
     "type": "git",
