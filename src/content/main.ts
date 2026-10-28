@@ -1,3 +1,11 @@
+import {
+  selectionFields,
+  selectionDescriptor,
+} from "./controls/selection-fields";
+import { fillSelections } from "./filling/selections";
+import { beginUndoOperation, endUndoOperation } from "./undo/history";
+import { watchDynamicFields, hasDynamicChanges } from "./observer/dynamic";
+import type { AppState } from "../shared/types";
 import { inspectPage } from "./detector/inventory";
 import { planPersonalFields, fillPersonalFields } from "./filling/personal";
 import { planRuleFields } from "./context/fields";
@@ -37,13 +45,17 @@ if (!window.__candidaturasBridgeInstalled) {
         return false;
       }
       if (message.type === "PLAN_RULE_FIELDS") {
-        sendResponse(planRuleFields());
+        sendResponse([
+          ...planRuleFields(),
+          ...selectionFields().map(selectionDescriptor),
+        ]);
         return false;
       }
       if (message.type === "GET_PAGE_SESSION") {
         sendResponse({
           ...(report ? { report } : {}),
           undoAvailable: hasUndo(),
+          dynamicChanges: hasDynamicChanges(),
         });
         return false;
       }
@@ -112,17 +124,34 @@ if (!window.__candidaturasBridgeInstalled) {
             !("preserveExisting" in message) ||
             typeof message.preserveExisting !== "boolean" ||
             !("resolutions" in message) ||
-            !Array.isArray(message.resolutions)
+            !Array.isArray(message.resolutions) ||
+            !("synonyms" in message) ||
+            typeof message.synonyms !== "object" ||
+            message.synonyms === null
           ) {
             sendResponse({ error: "Mensagem de preenchimento inválida." });
             return;
           }
-          report = await fillPersonalFields(
-            message.candidate as Record<string, AnswerValue>,
-            message.minimum,
-            message.preserveExisting,
-            message.resolutions as RuleResolution[],
-          );
+          watchDynamicFields();
+          beginUndoOperation();
+          try {
+            report = await fillPersonalFields(
+              message.candidate as Record<string, AnswerValue>,
+              message.minimum,
+              message.preserveExisting,
+              message.resolutions as RuleResolution[],
+            );
+            await fillSelections(
+              report,
+              message.resolutions as RuleResolution[],
+              message.synonyms as AppState["synonyms"],
+              message.preserveExisting,
+            );
+          } finally {
+            endUndoOperation();
+          }
+          report.undoAvailable = hasUndo();
+          report.dynamicChanges = hasDynamicChanges();
           sendResponse({ report });
         })
         .catch(() =>

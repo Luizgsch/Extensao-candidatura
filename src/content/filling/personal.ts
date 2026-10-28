@@ -1,3 +1,4 @@
+import { isSelectionElement } from "../controls/selection-fields";
 import type { AnswerValue } from "../../shared/types";
 import {
   matchPersonalField,
@@ -61,6 +62,7 @@ export async function fillPersonalFields(
   };
   const batch: UndoEntry[] = [];
   for (const element of visibleNativeControls(document)) {
+    if (isSelectionElement(element)) continue;
     report.found++;
     if (
       !element.matches(":disabled") &&

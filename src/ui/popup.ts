@@ -89,7 +89,10 @@ function showReport(report: FillReport) {
   $("editable").textContent = String(report.editable);
   undoAvailable = report.undoAvailable;
   note.textContent =
-    "Dados e respostas em inputs simples. Textos longos exigem clique; seleções e frames continuam manuais.";
+    "Seleções e campos dinâmicos: recursos experimentais, com validação completa prevista na parte 13. Textos longos exigem clique; frames continuam manuais.";
+  if (report.dynamicChanges)
+    note.textContent +=
+      " Novos campos detectados; clique em Preencher página novamente.";
   const labels = {
     filled: "Preenchido",
     preserved: "Preservado",
@@ -205,9 +208,17 @@ async function run(type: string, suggestionId?: string) {
       "undoAvailable" in value.session
     ) {
       const session = value.session;
+      if ("dynamicChanges" in session && session.dynamicChanges === true)
+        note.textContent =
+          "Novos campos detectados. Clique em Preencher página para analisar o estado atual.";
       undoAvailable = session.undoAvailable === true;
       if ("report" in session && isFillReport(session.report)) {
-        showReport({ ...session.report, undoAvailable });
+        showReport({
+          ...session.report,
+          undoAvailable,
+          dynamicChanges:
+            "dynamicChanges" in session && session.dynamicChanges === true,
+        });
         status.textContent =
           "Último preenchimento nesta página. Revise os campos antes de enviar.";
       }

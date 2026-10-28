@@ -5,6 +5,9 @@ export function expectedAnswerType(
   controlType: string,
 ): AnswerType | undefined {
   const q = normalizeText(question);
+  if (["select-multiple", "checkbox-group"].includes(controlType))
+    return "multiple-choice";
+  if (["checkbox", "aria-checkbox"].includes(controlType)) return "boolean";
   if (
     /\b(conte|descreva|explique|fale sobre|por que|porque|tell us|describe|explain|why|cover letter)\b/.test(
       q,

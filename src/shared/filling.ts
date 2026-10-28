@@ -20,6 +20,7 @@ export interface FillReport {
   unsupported: number;
   failed: number;
   undoAvailable: boolean;
+  dynamicChanges?: boolean;
   items: FieldOutcome[];
 }
 export interface UndoReport {

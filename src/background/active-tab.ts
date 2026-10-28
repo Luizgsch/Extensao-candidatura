@@ -1,3 +1,4 @@
+import { resolveSelection, selectionTypes } from "../core/matching/selection";
 import {
   resolveRule,
   isRuleField,
@@ -129,12 +130,15 @@ export async function actOnActiveTab(
         .map((key) => [key, state.candidate[key]]),
     );
     const resolutions = questions.map((field) =>
-      resolveRule(field, state, scope),
+      selectionTypes.has(field.controlType)
+        ? resolveSelection(field, state, scope)
+        : resolveRule(field, state, scope),
     );
     const result = await send({
       type: "FILL_PERSONAL_FIELDS",
       candidate,
       resolutions,
+      synonyms: state.synonyms,
       minimum: state.settings.confidence.automaticMinimum,
       preserveExisting: state.settings.preserveExisting,
     });

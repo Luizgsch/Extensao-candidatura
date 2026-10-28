@@ -18,6 +18,7 @@ export interface RuleField {
   controlType: string;
   language: Language;
   fingerprint: string;
+  options?: { id: string; label: string; value: string; disabled?: boolean }[];
 }
 export interface RuleResolution {
   fieldId: string;
@@ -28,6 +29,8 @@ export interface RuleResolution {
   decision: MatchResult["decision"];
   reason: string;
   value?: string;
+  selectionValues?: string[];
+  consentApproved?: boolean;
 }
 export interface RuleScope {
   domain: string;
@@ -114,7 +117,10 @@ function formattedAnswer(
     return undefined;
   if (answer.type === "text" || answer.type === "long-text")
     return answer.value[field.language] || undefined;
-  if (answer.type === "multiple-choice") return undefined;
+  if (answer.type === "multiple-choice")
+    return ["select-multiple", "checkbox-group"].includes(field.controlType)
+      ? JSON.stringify(answer.value)
+      : undefined;
   if (answer.type === "boolean")
     return field.language === "en"
       ? answer.value
@@ -166,7 +172,16 @@ export function resolveRule(
   scope: RuleScope,
 ): RuleResolution {
   const question = canonicalize(field.question, state.synonyms),
-    expected = expectedAnswerType(field.question, field.controlType);
+    inferred = expectedAnswerType(field.question, field.controlType);
+  const optionLabels = field.options
+    ?.filter((option) => option.value !== "")
+    .map((option) => normalizeText(option.label));
+  const expected =
+    inferred ??
+    (optionLabels?.length === 2 &&
+    optionLabels.every((label) => ["sim", "nao", "yes", "no"].includes(label))
+      ? "boolean"
+      : undefined);
   const ranked: {
     rule: AnswerRule;
     score: number;
@@ -296,7 +311,17 @@ export function resolveRule(
     base.reason = "Resposta sem tradução, tipo, moeda ou período compatível.";
     return base;
   }
-  if (base.decision !== "skip") base.value = chosen.value;
+  if (base.decision !== "skip") {
+    base.value = chosen.value;
+    base.selectionValues =
+      chosen.rule.answer.type === "multiple-choice"
+        ? chosen.rule.answer.value
+        : [chosen.value];
+    base.consentApproved =
+      chosen.rule.keywords.some(
+        (keyword) => normalizeText(keyword) === normalizeText(field.question),
+      ) && ["boolean", "multiple-choice"].includes(chosen.rule.answer.type);
+  }
   return base;
 }
 export function isRuleField(value: unknown): value is RuleField {
@@ -305,11 +330,40 @@ export function isRuleField(value: unknown): value is RuleField {
   return (
     ["fieldId", "question", "controlType", "fingerprint"].every(
       (key) =>
-        typeof field[key] === "string" && (field[key] as string).length <= 6000,
+        typeof field[key] === "string" &&
+        (field[key] as string).length <=
+          (key === "fingerprint" ? 256000 : 6000),
     ) &&
     ["pt-BR", "en"].includes(String(field.language)) &&
-    ["text", "number", "email", "tel", "url", "date", "textarea"].includes(
-      String(field.controlType),
-    )
+    (!field.options ||
+      (Array.isArray(field.options) &&
+        field.options.length <= 1000 &&
+        field.options.every(
+          (option) =>
+            option &&
+            ["id", "label", "value"].every(
+              (key) =>
+                typeof option[key] === "string" && option[key].length <= 2000,
+            ) &&
+            (option.disabled === undefined ||
+              typeof option.disabled === "boolean"),
+        ))) &&
+    [
+      "text",
+      "number",
+      "email",
+      "tel",
+      "url",
+      "date",
+      "textarea",
+      "select-one",
+      "select-multiple",
+      "radio",
+      "checkbox",
+      "checkbox-group",
+      "combobox",
+      "aria-checkbox",
+      "aria-radio",
+    ].includes(String(field.controlType))
   );
 }

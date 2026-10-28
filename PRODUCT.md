@@ -52,3 +52,7 @@ Preenchimento sob comando em campos nativos simples PT/EN. Preserve dados existe
 ## Estado implementado — parte 7
 
 Regras configuráveis e sinônimos conectados ao preenchimento, com classificação PT/EN, tipos, confiança, prioridade, exclusões e escopos. Textos longos e textarea são apenas sugestões com inserção explícita e nova validação. Perfil selecionado filtra regras com escopo e respeita overrides existentes; edição avançada de perfis permanece futura. Dados gerais cadastrados têm precedência. Campos ocultos por transparência também são protegidos. Seleções, componentes customizados e frames seguem fora desta etapa.
+
+## Estado implementado — parte 8 (experimental)
+
+Seleções nativas e ARIA explícitas, correspondência conservadora de opções, consentimento explícito e desfazer integrado. Observação regional detecta mudanças estruturais sem iniciar preenchimento automático. Cobertura ARIA limitada a componentes com vínculo e restauração verificáveis. Usuário decidiu concentrar testes funcionais, visuais e compatibilidade na parte 13; partes 8–12 recebem apenas tipos/build durante implementação.

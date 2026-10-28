@@ -65,3 +65,13 @@ Content script envia RuleField (identificador por documento, pergunta, tipo, idi
 Sugestões são guardadas por documento. Popup mostra prévia até 500 caracteres e score/100. Inserção explícita solicita novo plano, reavalia regra com estado atual e compara conteúdo salvo na proposta; verifica campo, tipo, edição posterior e visibilidade. Textarea usa setter nativo próprio e eventos input/change. Desfazer trata input e textarea e protege alterações posteriores. Novo preenchimento, undo ou navegação invalida sugestões anteriores. Não há persistência de respostas de página ou histórico no armazenamento.
 
 controls/visibility é compartilhado pelo inventário e escrita; bloqueia opacity zero no elemento ou ancestral, além de estados ocultos. isSimpleControl exclui combobox/listbox e controles previstos para fase seguinte. Testes isolados no Edge cobrem fluxo de regras, UI de cadastro, escopos, revalidação, escrita manual, textarea, transparência, tipos e ausência de envio. Publicação e validação direta em Chrome/Brave continuam pendentes.
+
+## Parte 8 — seleções experimentais
+
+core/matching/options.ts normaliza opções, equivalências curtas e sinônimos; selection.ts resolve dados fixos ou regras. RuleField transporta opções visíveis de seleção e RuleResolution carrega respostas múltiplas e autorização explícita de consentimento. Payloads e fingerprints têm limites para suportar listas extensas sem aceitar estruturas arbitrárias.
+
+selection-fields.ts agrupa controles nativos por formulário/nome/fieldset e reconhece ARIA explícito. selection-write.ts modifica propriedades nativas com eventos, ou interage somente com opções vinculadas por ARIA. Botões com semântica de envio e links não são clicados. Widgets sem restauração ficam manuais. UndoEntry suporta ações protegidas de seleção além dos snapshots de texto; begin/end agrupam toda operação num único histórico.
+
+observer/dynamic.ts usa um observador regional em até cinco formulários/role=form, ou body quando necessário, com childList/subtree, limite por lote e debounce. Não observa valores ou atributos e não dispara preenchimento. Mudanças aparecem na sessão; novo comando reavalia DOM e opções. Cobertura de regiões e contagens ainda precisam de validação funcional.
+
+Conforme instrução explícita do usuário, nesta fase somente tipos e build. Testes e revisão visual transferidos para a parte 13.

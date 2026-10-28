@@ -1,6 +1,6 @@
 # Assistente de Candidaturas
 
-Extensão local Manifest V3. Parte 7: dados gerais e respostas configuráveis em inputs simples, com sugestões revisadas por clique.
+Extensão local Manifest V3. Parte 8: seleções e observação de campos dinâmicos implementadas em caráter experimental. Validação funcional completa adiada para a parte 13 por decisão do usuário.
 
 ## Ambiente
 
@@ -71,3 +71,15 @@ Respostas longas e textarea aparecem em Revisar campos com prévia de até 500 c
 Dados gerais têm precedência quando cadastrados. Regras podem suprir dados gerais ausentes. Respostas em texto precisam de tradução para o idioma do campo; sim/não é apresentado em português ou inglês. Salários não são convertidos entre moedas ou períodos. Selects, radios, checkboxes, comboboxes e frames continuam para próximas etapas. Campos transparentes ou em ancestral transparente são excluídos, inclusive quando ocultados depois da sugestão.
 
 Execute npm run test:rules para os testes reais no Edge. Execute npm run fixture:rules e abra http://127.0.0.1:4177/rules.html para formulário fictício, usando a extensão instalada. Testes usam dados fictícios e permissões de host somente no pacote isolado de teste.
+
+## Seleções experimentais — parte 8
+
+Implementação de select simples/múltiplo, grupos de radio/checkbox e controles ARIA explícitos. Opções são comparadas por texto/valor normalizado, sinônimos configurados e equivalências curtas PT/EN; opções ambíguas ou ausentes ficam manuais. Nenhum salário é encaixado em faixas por aproximação. Respostas múltiplas exigem todas as opções identificáveis.
+
+Valores existentes continuam preservados por padrão. Consentimentos e declarações exigem regra explícita correspondente à pergunta completa. Nenhum botão de envio, avanço de etapa ou link de navegação é acionado.
+
+Comboboxes exigem aria-controls/aria-owns único apontando para listbox e opção anterior restaurável. Componente sem vínculo, sem estado verificável, sem restauração ou ARIA múltiplo permanece manual. Grupos de radio ARIA inicialmente vazios ficam manuais. Adapters específicos poderão ampliar essa cobertura. Desfazer reúne inputs e seleções da mesma operação e protege alterações posteriores.
+
+Um MutationObserver regional, somente de mudanças estruturais, marca adições/remoções de campos e alterações de opções. Não preenche espontaneamente. Ao reabrir popup, pode indicar novas perguntas; clique Preencher novamente para analisar o estado atual. Uma nova varredura sempre ocorre sob comando.
+
+Verificações desta entrega: TypeScript e build. Nenhum teste unitário, visual ou de navegador foi executado na parte 8. Compatibilidade com bibliotecas, restauração de radio controlado e widgets ARIA permanecem provisórios até a parte 13. Relatórios contam grupos de seleção como uma pergunta; consistência com a contagem bruta da análise será avaliada na validação final.
