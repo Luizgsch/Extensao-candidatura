@@ -40,3 +40,7 @@ Requisitos e experiências fornecidos pelo usuário no chat. Não incluir dados 
 ## Accessibility & Inclusion
 
 Navegação por teclado, foco visível, rótulos explícitos, contraste adequado e configurações utilizáveis em telas pequenas.
+
+## Estado implementado — parte 5
+
+Gerenciamento de dados locais com validação, backups completos ou de preferências, importação com revisão antes da substituição, restauração de preferências e exclusão explícita de dados. Cadastro inclui perfil profissional, diversidade opcional, formação técnica e sinônimos PT/EN. Tipos e traduções existentes são preservados durante edição. Sem preenchimento de formulários nesta etapa.

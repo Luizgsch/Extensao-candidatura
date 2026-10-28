@@ -85,6 +85,7 @@ Uma mesa de trabalho editorial para preparar candidaturas. O papel bege acolhe f
 A implementação é code-first: HTML, CSS e TypeScript são a fonte visual, sem biblioteca de componentes. Este documento registra o CSS existente, sem ampliar capacidades do produto.
 
 **Key Characteristics:**
+
 - Marrom e bege com texto escuro nas superfícies claras e claro nas escuras.
 - Newsreader nos títulos e DM Sans na interface, servidas por arquivos locais.
 - Seções separadas por linhas, com espaço para descrições longas.
@@ -151,13 +152,17 @@ Movimento é discreto: hover da navegação dura 0.16s; feedback entra em 0.2s, 
 ## Do's and Don'ts
 
 ### Do:
+
 - Do preservar rótulos explícitos e foco visível.
 - Do manter estados vazios honestos e contagens indisponíveis como travessão.
 - Do usar campos amplos para respostas e experiências.
 - Do manter as fontes locais e a identidade compartilhada pelo popup.
 
 ### Don't:
+
 - Don't apresentar análise básica como detecção de componentes customizados, leitura de frames ou preenchimento disponível.
 - Don't inserir métricas fictícias ou dados pessoais no repositório.
 - Don't substituir divisores e superfícies por uma coleção de cartões com sombra.
 - Don't adicionar animação quando a preferência de movimento reduzido estiver ativa.
+
+Privacidade oferece exportação, importação com revisão em linha, restauração de preferências e exclusão com confirmação explícita. Controles reutilizam a identidade e componentes existentes; nenhuma mudança de paleta ou escala na parte 5.

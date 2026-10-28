@@ -10,6 +10,7 @@ await build({
   },
   outdir: "dist",
   bundle: true,
+  minify: true,
   format: "iife",
   target: "chrome120",
 });

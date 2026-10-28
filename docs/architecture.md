@@ -37,3 +37,11 @@ Popup e configurações em aba implementados. Cadastro local de identificação,
 Popup solicita ANALYZE_ACTIVE_TAB ao service worker. Somente mensagens de páginas da própria extensão são aceitas. O worker injeta content.js no frame principal sob ação do usuário; listener idempotente responde INSPECT_PAGE. Inventário diagnóstico conta controles nativos visíveis, controles editáveis, anexos e frames. Senhas e ações de envio são excluídas. Nenhum valor é lido ou modificado. Não há classificação semântica, preenchimento ou observador dinâmico nesta fase. Nenhum resultado é persistido; nova análise lê o estado atual.
 
 Testes reais em perfil isolado do Edge validam resultados e ponte, com permissão de host restrita à fixture no manifesto de teste. O manifesto de produção permanece sem host_permissions. A permissão temporária activeTab depende de invocação da extensão pelo usuário na aba pretendida.
+
+## Atualização — parte 5
+
+schema.ts valida todo AppState com limites, datas, tipos, identificadores e integridade de referências. Estado versão 1; versões futuras recusadas sem apagar dados. answers.ts preserva metadados e idiomas ao editar respostas. import-export.ts usa envelope versionado e exportação compacta; exportação de preferências não inclui dados, regras ou perfis. Logs excluídos do backup completo.
+
+Interface oferece revisão da importação antes de aplicar; preferências mescladas sem substituir dados pessoais e backup completo substituído somente após confirmação. Erros preservam estado anterior. Dados incompatíveis na abertura oferecem cópia bruta de recuperação. Gravações usam Web Locks e snapshot canônico para evitar sobrescrever edição de outra aba; ordenação de chaves do Chrome Storage é normalizada.
+
+Cadastro ampliado inclui profissional, diversidade opcional e formação técnica. Respostas suportam todos os tipos do contrato e expressões excludentes. Sinônimos editáveis em português e inglês. Dados reais continuam fora de código e fixtures. Testes de integração usam exclusivamente perfil temporário do Edge.

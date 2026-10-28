@@ -59,3 +59,193 @@ test("protocolo rejeita comandos desconhecidos e contagens inválidas", () => {
   assert.equal(isPageAnalysis({ ...analysis, fieldsFound: -1 }), false);
   assert.equal(isPageAnalysis({ ...analysis, editableFields: "2" }), false);
 });
+import { parseState } from "../src/storage/schema";
+import {
+  exportBackup,
+  importBackup,
+  MAX_IMPORT_BYTES,
+} from "../src/storage/import-export";
+test("backup completo preserva respostas tipadas e não inclui logs", () => {
+  const state = createDefaultState();
+  state.candidate.name = {
+    type: "text",
+    value: { "pt-BR": "Pessoa de teste" },
+  };
+  state.candidate.salary = {
+    type: "salary",
+    value: 2000,
+    currency: "BRL",
+    period: "month",
+  };
+  state.logs = [
+    {
+      id: "log-1",
+      at: "2026-10-28T12:00:00Z",
+      fieldId: "f",
+      score: 95,
+      action: "filled",
+    },
+  ];
+  const restored = importBackup(exportBackup(state, true));
+  assert.deepEqual(restored.candidate, state.candidate);
+  assert.deepEqual(restored.logs, []);
+});
+test("backup de preferências não vaza dados, respostas ou experiências", () => {
+  const state = createDefaultState();
+  state.candidate.email = { type: "email", value: "teste@example.test" };
+  state.settings.confidence.automaticMinimum = 95;
+  const exported = exportBackup(state, false);
+  const restored = importBackup(exported);
+  assert.equal(exported.includes("teste@example.test"), false);
+  assert.deepEqual(restored.candidate, {});
+  assert.equal(restored.settings.confidence.automaticMinimum, 95);
+});
+test("importação recusa JSON inválido, versão desconhecida, escopo inválido e arquivo grande", () => {
+  assert.throws(() => importBackup("{"), /JSON/);
+  const envelope = JSON.parse(exportBackup(createDefaultState(), true));
+  assert.throws(
+    () => importBackup(JSON.stringify({ ...envelope, version: 99 })),
+    /incompatível/,
+  );
+  assert.throws(
+    () => importBackup(JSON.stringify({ ...envelope, scope: "other" })),
+    /incompatível/,
+  );
+  assert.throws(() => importBackup(" ".repeat(MAX_IMPORT_BYTES + 1)), /5 MB/);
+});
+test("validação rejeita dados incompatíveis, datas impossíveis e referência ausente", () => {
+  const state = createDefaultState();
+  assert.throws(() => parseState({ ...state, schemaVersion: 2 }), /inválidos/);
+  assert.throws(
+    () =>
+      parseState({
+        ...state,
+        candidate: { date: { type: "date", value: "2026-02-30" } },
+      }),
+    /inválidos/,
+  );
+  assert.throws(
+    () =>
+      parseState({
+        ...state,
+        candidate: { email: { type: "email", value: "errado" } },
+      }),
+    /inválidos/,
+  );
+  assert.throws(
+    () =>
+      parseState({
+        ...state,
+        candidate: { url: { type: "url", value: "javascript:alert(1)" } },
+      }),
+    /inválidos/,
+  );
+  assert.throws(
+    () =>
+      parseState({
+        ...state,
+        profiles: [
+          {
+            id: "p",
+            name: "Teste",
+            technologies: [],
+            introduction: {},
+            experienceIds: ["ausente"],
+            answerOverrides: {},
+          },
+        ],
+      }),
+    /referências/,
+  );
+});
+test("validação bloqueia chaves perigosas, segredos e conflitos de confiança", () => {
+  const state = createDefaultState();
+  assert.throws(
+    () =>
+      parseState(
+        JSON.parse(
+          JSON.stringify(state).replace(
+            '"candidate":{}',
+            '"candidate":{"__proto__":{}}',
+          ),
+        ),
+      ),
+    /chave/,
+  );
+  assert.throws(
+    () =>
+      parseState({
+        ...state,
+        candidate: { password: { type: "text", value: { en: "secret" } } },
+      }),
+    /permitidos/,
+  );
+  assert.throws(
+    () =>
+      parseState({
+        ...state,
+        settings: {
+          ...state.settings,
+          confidence: { ...state.settings.confidence, highlightedMinimum: 99 },
+        },
+      }),
+    /inválidos/,
+  );
+});
+test("todos os tipos de resposta e idiomas sobrevivem à validação", () => {
+  const state = createDefaultState();
+  state.candidate = {
+    text: { type: "text", value: { "pt-BR": "Olá", en: "Hello" } },
+    long: { type: "long-text", value: { en: "Story" } },
+    n: { type: "number", value: 2 },
+    years: { type: "experience-years", value: 1.5 },
+    bool: { type: "boolean", value: false },
+    one: { type: "single-choice", value: "Sim" },
+    many: { type: "multiple-choice", value: ["Java", "SQL"] },
+    url: { type: "url", value: "https://example.test" },
+    email: { type: "email", value: "a@example.test" },
+    phone: { type: "phone", value: "41999999999" },
+    date: { type: "date", value: "2000-02-29" },
+    salary: { type: "salary", value: 2000.5, currency: "BRL", period: "month" },
+  };
+  assert.deepEqual(parseState(state), state);
+});
+import { editAnswer } from "../src/storage/answers";
+test("edição preserva tipo, idioma, moeda e período importados", () => {
+  assert.deepEqual(
+    editAnswer(
+      { type: "salary", value: 2000, currency: "USD", period: "year" },
+      "2500",
+      "salary",
+    ),
+    { type: "salary", value: 2500, currency: "USD", period: "year" },
+  );
+  assert.deepEqual(
+    editAnswer(
+      { type: "text", value: { "pt-BR": "Olá", en: "Hello" } },
+      "Oi",
+      "text",
+    ),
+    { type: "text", value: { "pt-BR": "Oi", en: "Hello" } },
+  );
+  assert.deepEqual(
+    editAnswer({ type: "single-choice", value: "A" }, "B", "text"),
+    { type: "single-choice", value: "B" },
+  );
+  assert.deepEqual(
+    editAnswer({ type: "multiple-choice", value: ["A"] }, "B, C", "text"),
+    { type: "multiple-choice", value: ["B", "C"] },
+  );
+});
+test("backup próximo do limite de armazenamento continua importável", () => {
+  const state = createDefaultState();
+  for (let i = 0; i < 85; i++)
+    state.candidate["campo" + i] = {
+      type: "text",
+      value: { "pt-BR": "a".repeat(49270) },
+    };
+  assert.ok(
+    new TextEncoder().encode(JSON.stringify(state)).length < 4 * 1024 * 1024,
+  );
+  assert.deepEqual(importBackup(exportBackup(state, true)), state);
+});

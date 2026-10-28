@@ -1,5 +1,12 @@
-import type { AppState, AnswerValue } from "../shared/types";
-import { loadState, saveState, preview } from "./storage";
+import { editAnswer } from "../storage/answers";
+import type { AppState, AnswerValue, LocalizedText } from "../shared/types";
+import { loadState, saveState, clearAllData, preview } from "./storage";
+import { createDefaultState } from "../defaults/state";
+import {
+  exportBackup,
+  importBackup,
+  MAX_IMPORT_BYTES,
+} from "../storage/import-export";
 let state: AppState;
 let page = "dados";
 let busy = false;
@@ -46,7 +53,7 @@ const field = (
   name +
   '" type="' +
   type +
-  '" value="' +
+  (type === "number" ? '" step="any" value="' : '" value="') +
   escape(value) +
   '"></div>';
 const area = (name: string, label: string, value = "") =>
@@ -85,6 +92,65 @@ const contact = [
   ["github", "GitHub", "url"],
   ["portfolio", "Portfólio", "url"],
 ];
+const professional = [
+  ["desiredRole", "Cargo desejado"],
+  ["professionalArea", "Área profissional"],
+  ["javaYears", "Anos de experiência com Java", "number"],
+  ["sqlYears", "Anos de experiência com SQL", "number"],
+  ["salaryExpectation", "Pretensão salarial mensal (BRL)", "salary"],
+  ["lastSalary", "Última remuneração mensal (BRL)", "salary"],
+  ["relocation", "Disponibilidade para mudança", "boolean"],
+  ["onsite", "Disponibilidade presencial", "boolean"],
+  ["hybrid", "Disponibilidade híbrida", "boolean"],
+  ["remote", "Disponibilidade remota", "boolean"],
+  ["englishLevel", "Nível de inglês"],
+  ["technicalReading", "Leitura técnica em inglês", "boolean"],
+  ["technologies", "Tecnologias"],
+  ["aws", "Experiência com AWS", "boolean"],
+  ["preferredLocation", "Localidade preferida"],
+  ["startAvailability", "Disponibilidade para início"],
+  ["workAuthorization", "Autorização para trabalhar no Brasil", "boolean"],
+  ["referral", "Indicação", "boolean"],
+  ["knowsEmployee", "Conhece alguém na empresa", "boolean"],
+  ["relatives", "Parentes na empresa", "boolean"],
+];
+const diversity = [
+  ["gender", "Gênero"],
+  ["orientation", "Orientação sexual"],
+  ["race", "Raça/cor"],
+  ["disability", "Pessoa com deficiência", "boolean"],
+  ["accessibility", "Necessidade de acessibilidade", "boolean"],
+];
+function answerText(answer: AnswerValue): string {
+  if (Array.isArray(answer.value)) return answer.value.join(", ");
+  if (typeof answer.value === "object") return answer.value["pt-BR"] ?? "";
+  return String(answer.value);
+}
+function synonymLines(language: "pt-BR" | "en"): string {
+  return Object.entries(state.synonyms[language])
+    .map(([key, values]) => key + " = " + values.join(", "))
+    .join("\n");
+}
+function readSynonyms(text: string): Record<string, string[]> {
+  const result: Record<string, string[]> = Object.create(null);
+  for (const line of text.split("\n").filter((line) => line.trim())) {
+    const index = line.indexOf("=");
+    if (index < 1)
+      throw new Error(
+        "Use o formato assunto = variação, outra variação nos sinônimos.",
+      );
+    const key = line.slice(0, index).trim();
+    const values = line
+      .slice(index + 1)
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean);
+    if (!values.length)
+      throw new Error("Cada assunto precisa de pelo menos uma variação.");
+    result[key] = values;
+  }
+  return result;
+}
 function valueOf(key: string): string {
   const answer = state.candidate[key];
   if (!answer) return "";
@@ -97,9 +163,52 @@ function notify(message: string) {
 }
 function formFields(fields: string[][]) {
   return fields
-    .map(([key, label, type]) =>
-      field(key!, label!, valueOf(key!), type ?? "text"),
-    )
+    .map(([key, label, type]) => {
+      const existing = state.candidate[key!];
+      if (existing)
+        type =
+          existing.type === "boolean"
+            ? "boolean"
+            : existing.type === "salary"
+              ? "salary"
+              : existing.type === "number" ||
+                  existing.type === "experience-years"
+                ? "number"
+                : existing.type === "phone"
+                  ? "tel"
+                  : ["email", "url", "date"].includes(existing.type)
+                    ? existing.type
+                    : "text";
+      if (type === "salary" && existing?.type === "salary")
+        label = label!
+          .replace(
+            "mensal",
+            ({ month: "mensal", year: "anual", hour: "por hora" } as const)[
+              existing.period
+            ],
+          )
+          .replace("BRL", existing.currency);
+      return type === "boolean"
+        ? '<div><label for="' +
+            key +
+            '">' +
+            label +
+            '</label><select id="' +
+            key +
+            '" name="' +
+            key +
+            '"><option value="">Não informado</option><option value="true" ' +
+            (valueOf(key!) === "true" ? "selected" : "") +
+            '>Sim</option><option value="false" ' +
+            (valueOf(key!) === "false" ? "selected" : "") +
+            ">Não</option></select></div>"
+        : field(
+            key!,
+            label!,
+            valueOf(key!),
+            type === "salary" ? "number" : (type ?? "text"),
+          );
+    })
     .join("");
 }
 function section(title: string, description: string, content: string) {
@@ -131,6 +240,16 @@ function body(): string {
         '<div class="grid">' + formFields(contact) + "</div>",
       ) +
       section(
+        "Perfil profissional",
+        "Disponibilidade e respostas profissionais recorrentes.",
+        '<div class="grid">' + formFields(professional) + "</div>",
+      ) +
+      section(
+        "Diversidade e acessibilidade",
+        "Preenchimento opcional. Dados cadastrados poderão ser usados após seu comando.",
+        '<div class="grid">' + formFields(diversity) + "</div>",
+      ) +
+      section(
         "Formação",
         "Registre sua formação principal.",
         '<div class="grid">' +
@@ -154,6 +273,34 @@ function body(): string {
             "endYear",
             "Ano de conclusão",
             String(state.education[0]?.endYear ?? ""),
+            "number",
+          ) +
+          "</div>",
+      ) +
+      section(
+        "Formação técnica",
+        "Opcional. Registre uma segunda formação.",
+        '<div class="grid">' +
+          field(
+            "technicalInstitution",
+            "Instituição técnica",
+            state.education[1]?.institution,
+          ) +
+          field(
+            "technicalCourse",
+            "Curso técnico",
+            state.education[1]?.course,
+          ) +
+          field(
+            "technicalStart",
+            "Início do curso técnico",
+            String(state.education[1]?.startYear ?? ""),
+            "number",
+          ) +
+          field(
+            "technicalEnd",
+            "Conclusão do curso técnico",
+            String(state.education[1]?.endYear ?? ""),
             "number",
           ) +
           "</div>",
@@ -279,6 +426,14 @@ function body(): string {
           (state.settings.preserveExisting ? "checked" : "") +
           '><label for="preserve">Preservar campos já preenchidos</label></div>',
       ) +
+      section(
+        "Sinônimos",
+        "Use uma linha por assunto. Exemplo: salário = remuneração, pretensão salarial.",
+        '<div class="grid">' +
+          area("synonymsPt", "Sinônimos em português", synonymLines("pt-BR")) +
+          area("synonymsEn", "Sinônimos em inglês", synonymLines("en")) +
+          "</div>",
+      ) +
       "<button>Salvar preferências</button></form>"
     );
   }
@@ -289,11 +444,172 @@ function body(): string {
       "<p>Dados, respostas e experiências ficam no armazenamento local da extensão. O envio de candidaturas continua sempre manual.</p><p>O armazenamento do navegador não é um cofre criptografado. Não cadastre senhas, tokens, códigos de autenticação ou dados bancários.</p>",
     ) +
     section(
-      "O que está disponível",
-      "Esta é a etapa de interface e organização.",
-      "<p>Cadastro de dados, experiências, respostas, perfis e preferências. Importação, exportação, limpeza integral e logs serão adicionados na etapa de gerenciamento de dados.</p>",
+      "Backup e transferência",
+      "Arquivos ficam no seu computador. Backup completo contém informações pessoais sem criptografia.",
+      '<div class="actions"><button id="export-preferences" class="secondary">Exportar preferências</button><button id="export-full" class="secondary">Exportar backup completo</button></div><p>Preferências incluem apenas limites de confiança e sinônimos. Backup completo inclui dados, perfis e respostas; logs ficam de fora.</p><label for="import-file">Importar backup JSON (até 5 MB)</label><input id="import-file" type="file" accept="application/json,.json"><div id="import-review"></div>',
+    ) +
+    section(
+      "Restaurar e apagar",
+      "Ações diferentes para necessidades diferentes.",
+      '<p>Restaurar preferências mantém dados, experiências, perfis e respostas. Apagar todos os dados remove também o perfil selecionado e logs deste navegador.</p><div class="actions"><button id="restore-defaults" class="secondary">Restaurar preferências</button><button id="clear-logs" class="secondary">Apagar logs</button><button id="clear-all" class="secondary">Apagar todos os dados</button></div>',
     )
   );
+}
+function bindPrivacy() {
+  const download = (includePersonal: boolean) => {
+    if (
+      includePersonal &&
+      !confirm(
+        "Este arquivo contém seus dados pessoais sem criptografia. Deseja exportar o backup completo?",
+      )
+    )
+      return;
+    try {
+      const data = exportBackup(state, includePersonal);
+      const url = URL.createObjectURL(
+        new Blob([data], { type: "application/json" }),
+      );
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = includePersonal
+        ? "backup-candidaturas.json"
+        : "preferencias-candidaturas.json";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      notify("Arquivo preparado para download.");
+    } catch (error) {
+      notify(
+        error instanceof Error ? error.message : "Não foi possível exportar.",
+      );
+    }
+  };
+  document
+    .querySelector("#export-preferences")
+    ?.addEventListener("click", () => download(false));
+  document
+    .querySelector("#export-full")
+    ?.addEventListener("click", () => download(true));
+  document
+    .querySelector<HTMLInputElement>("#import-file")
+    ?.addEventListener("change", async (event) => {
+      const input = event.currentTarget as HTMLInputElement;
+      const file = input.files?.[0];
+      const review = document.querySelector<HTMLElement>("#import-review")!;
+      review.replaceChildren();
+      if (!file) return;
+      if (file.size > MAX_IMPORT_BYTES) {
+        notify("Arquivo excede o limite de 5 MB.");
+        input.value = "";
+        return;
+      }
+      try {
+        const text = await file.text();
+        const imported = importBackup(text);
+        const scope = (JSON.parse(text) as { scope: string }).scope;
+        const note = document.createElement("p");
+        note.textContent =
+          scope === "preferences"
+            ? "Backup de preferências validado. Seus dados pessoais e respostas serão mantidos."
+            : "Backup validado: " +
+              Object.keys(imported.candidate).length +
+              " dados, " +
+              imported.experiences.length +
+              " experiências, " +
+              imported.rules.length +
+              " respostas, " +
+              imported.profiles.length +
+              " perfis. Aplicar substituirá todos os registros atuais.";
+        const apply = document.createElement("button");
+        apply.type = "button";
+        apply.textContent =
+          scope === "preferences"
+            ? "Importar preferências"
+            : "Substituir dados pelo backup";
+        apply.addEventListener("click", () => {
+          if (!confirmDiscard()) return;
+          if (
+            scope !== "preferences" &&
+            !confirm(
+              "Substituir todos os dados atuais pelo backup validado? Esta ação não pode ser desfeita.",
+            )
+          )
+            return;
+          const next =
+            scope === "preferences"
+              ? {
+                  ...structuredClone(state),
+                  settings: imported.settings,
+                  synonyms: imported.synonyms,
+                }
+              : imported;
+          void persist(next);
+        });
+        const cancel = document.createElement("button");
+        cancel.type = "button";
+        cancel.className = "secondary";
+        cancel.textContent = "Cancelar importação";
+        cancel.onclick = () => {
+          review.replaceChildren();
+          input.value = "";
+          input.focus();
+        };
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        actions.append(apply, cancel);
+        review.append(note, actions);
+        apply.focus();
+      } catch (error) {
+        notify(
+          error instanceof Error
+            ? error.message
+            : "Não foi possível ler o arquivo.",
+        );
+        input.value = "";
+      }
+    });
+  document.querySelector("#restore-defaults")?.addEventListener("click", () => {
+    if (
+      !confirm(
+        "Restaurar preferências padrão? Seus dados, perfis e respostas serão mantidos.",
+      )
+    )
+      return;
+    const next = structuredClone(state);
+    next.settings = createDefaultState().settings;
+    next.synonyms = createDefaultState().synonyms;
+    void persist(next);
+  });
+  document.querySelector("#clear-logs")?.addEventListener("click", () => {
+    if (!confirm("Apagar todos os logs locais?")) return;
+    const next = structuredClone(state);
+    next.logs = [];
+    void persist(next);
+  });
+  document.querySelector("#clear-all")?.addEventListener("click", async () => {
+    if (
+      busy ||
+      !confirm(
+        "Apagar permanentemente todos os dados desta extensão neste navegador? Faça um backup antes. Esta ação não pode ser desfeita.",
+      )
+    )
+      return;
+    busy = true;
+    try {
+      await clearAllData();
+      state = createDefaultState();
+      render();
+      restoreFocus();
+      notify(
+        preview
+          ? "Dados da prévia apagados."
+          : "Todos os dados locais foram apagados.",
+      );
+    } catch {
+      notify("Não foi possível apagar. Tente novamente.");
+    } finally {
+      busy = false;
+    }
+  });
 }
 function render() {
   document.querySelector("#app")!.innerHTML =
@@ -347,9 +663,11 @@ async function persist(next: AppState) {
         ? "Alterações aplicadas à prévia."
         : "Alterações salvas neste navegador.",
     );
-  } catch {
+  } catch (error) {
     notify(
-      "Não foi possível salvar. Seus campos continuam disponíveis; tente novamente.",
+      error instanceof Error
+        ? error.message
+        : "Não foi possível salvar. Seus campos continuam disponíveis; tente novamente.",
     );
   } finally {
     busy = false;
@@ -369,6 +687,7 @@ function restoreFocus() {
   target?.focus();
 }
 function bind() {
+  bindPrivacy();
   document.querySelectorAll<HTMLButtonElement>("[data-page]").forEach(
     (b) =>
       (b.onclick = () => {
@@ -416,10 +735,19 @@ function bind() {
             (m) => m.ruleId !== b.dataset.delete,
           );
         }
-        if (page === "perfis")
+        if (page === "perfis") {
+          for (const rule of next.rules)
+            if (rule.profileIds)
+              rule.profileIds = rule.profileIds.filter(
+                (id) => id !== b.dataset.delete,
+              );
           next.profiles = next.profiles.filter(
             (p) => p.id !== b.dataset.delete,
           );
+        }
+        if (page === "respostas")
+          for (const profile of next.profiles)
+            delete profile.answerOverrides[b.dataset.delete!];
         void persist(next);
       }),
   );
@@ -439,19 +767,39 @@ function bind() {
       event.preventDefault();
       const data = new FormData(event.currentTarget as HTMLFormElement);
       const next = structuredClone(state);
-      for (const [key, , type] of [...personal, ...contact]) {
+      for (const [key, , type] of [
+        ...personal,
+        ...contact,
+        ...professional,
+        ...diversity,
+      ]) {
         const value = String(data.get(key!) ?? "").trim();
+        const previous = state.candidate[key!];
+        if (previous && value === valueOf(key!)) continue;
         if (!value) {
           delete next.candidate[key!];
           continue;
         }
-        next.candidate[key!] =
-          type === "email" ||
-          type === "url" ||
-          type === "tel" ||
-          type === "date"
-            ? ({ type: type === "tel" ? "phone" : type, value } as AnswerValue)
-            : { type: "text", value: { "pt-BR": value } };
+        try {
+          const answer = editAnswer(
+            previous,
+            value,
+            type === "tel"
+              ? "phone"
+              : type === "number"
+                ? "experience-years"
+                : ["salary", "boolean", "email", "url", "date"].includes(
+                      type ?? "",
+                    )
+                  ? (type as "salary" | "boolean" | "email" | "url" | "date")
+                  : "text",
+          );
+          if (answer) next.candidate[key!] = answer;
+          else delete next.candidate[key!];
+        } catch (error) {
+          notify(error instanceof Error ? error.message : "Resposta inválida.");
+          return;
+        }
       }
       const institution = String(data.get("institution") ?? "").trim(),
         course = String(data.get("course") ?? "").trim();
@@ -484,6 +832,41 @@ function bind() {
         };
         next.education = [education, ...state.education.slice(1)];
       } else next.education = state.education.slice(1);
+      const ti = String(data.get("technicalInstitution") ?? "").trim(),
+        tc = String(data.get("technicalCourse") ?? "").trim(),
+        ts = Number(data.get("technicalStart")),
+        te = Number(data.get("technicalEnd"));
+      const main = next.education.find(
+        (e) => e.id === (state.education[0]?.id ?? next.education[0]?.id),
+      );
+      if (ti || tc) {
+        if (!institution || !course) {
+          notify(
+            "Cadastre a formação principal antes de adicionar a formação técnica.",
+          );
+          return;
+        }
+        if (!ti || !tc || ts < 1900 || ts > 2200 || (te && te < ts)) {
+          notify("Confira instituição, curso e datas da formação técnica.");
+          return;
+        }
+        const technical = {
+          id: state.education[1]?.id ?? crypto.randomUUID(),
+          institution: ti,
+          course: tc,
+          startYear: ts,
+          ...(te ? { endYear: te } : {}),
+        };
+        next.education = [
+          ...(institution || course ? (main ? [main] : []) : []),
+          technical,
+          ...state.education.slice(2),
+        ];
+      } else
+        next.education = [
+          ...(institution || course ? (main ? [main] : []) : []),
+          ...state.education.slice(2),
+        ];
       void persist(next);
     });
   document
@@ -511,6 +894,15 @@ function bind() {
         minimumLead: lead,
         fillMediumConfidence: data.has("medium"),
       };
+      try {
+        next.synonyms = {
+          "pt-BR": readSynonyms(String(data.get("synonymsPt") ?? "")),
+          en: readSynonyms(String(data.get("synonymsEn") ?? "")),
+        };
+      } catch (error) {
+        notify(error instanceof Error ? error.message : "Sinônimos inválidos.");
+        return;
+      }
       next.settings.preserveExisting = data.has("preserve");
       void persist(next);
     });
@@ -575,6 +967,13 @@ function editor(id?: string) {
         "text",
         true,
       ) +
+      field(
+        "excludedKeywords",
+        "Expressões que impedem correspondência — separadas por vírgula",
+        r?.excludedKeywords.join(", "),
+        "text",
+        true,
+      ) +
       '<div><label for="type">Tipo de resposta</label><select id="type" name="type">' +
       [
         ["text", "Texto"],
@@ -582,6 +981,13 @@ function editor(id?: string) {
         ["boolean", "Sim/não"],
         ["experience-years", "Anos de experiência"],
         ["number", "Número"],
+        ["single-choice", "Opção única"],
+        ["multiple-choice", "Múltipla escolha"],
+        ["url", "URL"],
+        ["email", "E-mail"],
+        ["phone", "Telefone"],
+        ["date", "Data (AAAA-MM-DD)"],
+        ["salary", "Salário"],
       ]
         .map(
           ([v, l]) =>
@@ -595,15 +1001,32 @@ function editor(id?: string) {
         )
         .join("") +
       "</select></div>" +
-      area(
-        "answer",
-        "Resposta em português",
-        r
-          ? typeof r.answer.value === "object" && !Array.isArray(r.answer.value)
-            ? r.answer.value["pt-BR"]
-            : String(r.answer.value)
-          : "",
+      field(
+        "currency",
+        "Moeda para salário (BRL, USD...)",
+        r?.answer.type === "salary" ? r.answer.currency : "BRL",
       ) +
+      '<div><label for="salaryPeriod">Período do salário</label><select id="salaryPeriod" name="salaryPeriod">' +
+      [
+        ["month", "Mensal"],
+        ["year", "Anual"],
+        ["hour", "Por hora"],
+      ]
+        .map(
+          ([value, label]) =>
+            '<option value="' +
+            value +
+            '" ' +
+            (r?.answer.type === "salary" && r.answer.period === value
+              ? "selected"
+              : "") +
+            ">" +
+            label +
+            "</option>",
+        )
+        .join("") +
+      '</select></div><p class="wide">Múltipla escolha: separe respostas por vírgula. Data: AAAA-MM-DD. Moeda e período se aplicam somente a salário.</p>' +
+      area("answer", "Resposta em português", r ? answerText(r.answer) : "") +
       area(
         "english",
         "Resposta em inglês — para textos",
@@ -657,6 +1080,9 @@ function editor(id?: string) {
         );
         return;
       }
+      const previousExperience = state.experiences.find(
+        (e) => e.id === recordId,
+      );
       const record = {
         id: recordId,
         organization: get("organization"),
@@ -664,12 +1090,21 @@ function editor(id?: string) {
         startMonth: get("startMonth"),
         ...(data.has("current") ? {} : { endMonth: get("endMonth") }),
         current: data.has("current"),
-        shortDescription: { "pt-BR": get("short") },
+        shortDescription: {
+          ...previousExperience?.shortDescription,
+          "pt-BR": get("short"),
+        },
         fullDescription: { "pt-BR": get("full"), en: get("english") },
         activities: get("activities")
           .split("\n")
           .filter(Boolean)
-          .map((text) => ({ "pt-BR": text })),
+          .map<LocalizedText>((text) => ({
+            ...previousExperience?.activities.find((a) => a["pt-BR"] === text),
+            "pt-BR": text,
+          }))
+          .concat(
+            previousExperience?.activities.filter((a) => !a["pt-BR"]) ?? [],
+          ),
       };
       next.experiences = next.experiences.filter((e) => e.id !== recordId);
       next.experiences.push(record);
@@ -730,6 +1165,28 @@ function editor(id?: string) {
           return;
         }
         answer = { type, value: n };
+      } else if (type === "salary") {
+        answer = {
+          type: "salary",
+          value: Number(value.replace(",", ".")),
+          currency: get("currency").toUpperCase(),
+          period: get("salaryPeriod") as "month" | "year" | "hour",
+        };
+      } else if (type === "multiple-choice") {
+        answer = {
+          type: "multiple-choice",
+          value: value
+            .split(",")
+            .map((v) => v.trim())
+            .filter(Boolean),
+        };
+      } else if (
+        ["single-choice", "url", "email", "phone", "date"].includes(type)
+      ) {
+        answer = {
+          type: type as "single-choice" | "url" | "email" | "phone" | "date",
+          value,
+        };
       } else
         answer = {
           type: type === "long-text" ? "long-text" : "text",
@@ -746,7 +1203,10 @@ function editor(id?: string) {
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean),
-        excludedKeywords: old?.excludedKeywords ?? [],
+        excludedKeywords: get("excludedKeywords")
+          .split(",")
+          .map((v) => v.trim())
+          .filter(Boolean),
         answer,
         enabled: old?.enabled ?? true,
         priority: Number(get("priority")),
@@ -768,7 +1228,46 @@ void loadState()
     state = value;
     render();
   })
-  .catch(() => {
-    document.querySelector("#app")!.textContent =
-      "Não foi possível carregar os dados. Feche e reabra as configurações. Nenhum dado foi alterado.";
+  .catch((error) => {
+    const app = document.querySelector("#app")!;
+    app.innerHTML =
+      '<main class="content"><h1>Seus dados foram preservados.</h1><p id="load-error"></p><p>Não foi possível abrir as configurações. Você pode salvar uma cópia dos dados antes de apagar e recomeçar.</p><div class="actions"><button id="recover">Baixar cópia para recuperação</button><button class="secondary" id="restart">Apagar dados e recomeçar</button></div></main>';
+    document.querySelector("#load-error")!.textContent =
+      error instanceof Error ? error.message : "Dados incompatíveis.";
+    document.querySelector("#recover")!.addEventListener("click", async () => {
+      if (
+        !confirm(
+          "A cópia pode conter dados pessoais sem criptografia. Deseja baixar?",
+        )
+      )
+        return;
+      const stored = preview ? {} : await chrome.storage.local.get(null);
+      const url = URL.createObjectURL(
+        new Blob([JSON.stringify(stored, null, 2)], {
+          type: "application/json",
+        }),
+      );
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "recuperacao-candidaturas.json";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+    document.querySelector("#restart")!.addEventListener("click", async () => {
+      if (
+        !confirm(
+          "Apagar permanentemente todos os dados e recomeçar? Esta ação não pode ser desfeita.",
+        )
+      )
+        return;
+      try {
+        await clearAllData();
+        state = createDefaultState();
+        render();
+        notify("Dados apagados. Você pode recomeçar.");
+      } catch {
+        document.querySelector("#load-error")!.textContent =
+          "Não foi possível apagar. Tente novamente.";
+      }
+    });
   });

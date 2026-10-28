@@ -1,6 +1,6 @@
 # Assistente de Candidaturas
 
-Extensão local Manifest V3. Parte 4: popup conectado à aba e inventário diagnóstico de campos. Preenchimento de páginas ainda não disponível.
+Extensão local Manifest V3. Parte 5: gerenciamento local de dados, validação e backups. Preenchimento de páginas ainda não disponível.
 
 ## Ambiente
 
@@ -12,7 +12,7 @@ Execute npm run build. No Chrome ou Brave, abra a página de extensões, ative m
 
 ## Interface disponível
 
-Dados pessoais, contato, formação principal, experiências com descrições amplas em português e inglês, respostas tipadas básicas, perfis e preferências de confiança. Registros podem ser criados, editados e excluídos. Ainda faltam importação/exportação, demais tipos de respostas, associação avançada de perfis e detector de formulários.
+Dados pessoais, contato, perfil profissional, diversidade opcional, formação principal e técnica, experiências com descrições amplas, respostas de todos os tipos previstos, perfis, sinônimos e preferências. Registros podem ser criados, editados e excluídos. Associação avançada de perfis e preenchimento de formulários continuam nas próximas etapas.
 
 O popup permite selecionar um perfil, abrir configurações e analisar campos nativos visíveis da aba principal após comando. Preencher página permanece desabilitado até implementação do motor. Contagens não analisadas aparecem como traço. Campos em frames e componentes customizados ainda não são analisados. A análise não lê valores nem altera o formulário.
 
@@ -35,3 +35,13 @@ Build separado em dist. Publicação ainda exigirá ícones, política de privac
 ## Teste da comunicação
 
 npm run test:analysis executa uma extensão real no Edge em perfil novo, testa contagens, análises repetidas, popup e recusa de página protegida. O teste concede acesso apenas ao servidor de formulário local no manifesto copiado para work; essa permissão não entra no pacote real. O pacote usa activeTab: o usuário deve clicar no ícone da extensão na aba desejada para autorizar acesso temporário. Ainda falta validação manual desse fluxo no Chrome e Brave.
+
+## Backups e integridade
+
+Em Privacidade, exporte preferências sem dados pessoais ou backup completo sem logs. Backup completo contém informações pessoais em texto sem criptografia e exige confirmação. Importação aceita JSON de até 5 MB, valida versão, tipos, datas, referências e limites antes de gravar. Arquivo inválido não altera dados. Importar preferências mantém dados e respostas; importar backup completo substitui os registros após revisão e confirmação. Estado persistido limitado a 4 MB; exportação compacta reserva espaço para o envelope do backup.
+
+Restaurar preferências volta limites e sinônimos aos padrões, mantendo cadastro e respostas. Apagar todos os dados limpa armazenamento da extensão, incluindo seleção de perfil e logs, após confirmação. Dados incompatíveis oferecem download de recuperação e reinicialização explícita. Cópia de recuperação é formato bruto para diagnóstico, não substitui backup validado.
+
+Gravações em abas simultâneas usam trava e comparação de estado. Ao detectar outra edição, a gravação é recusada e os campos permanecem disponíveis. Reabra as configurações para carregar a versão atual.
+
+Execute npm run test:data para verificar exportação, importação, cancelamento, preservação de tipos e traduções, conflitos entre abas, recuperação e exclusão em perfil isolado do Edge. Nenhum teste usa seu perfil pessoal ou dados reais.
