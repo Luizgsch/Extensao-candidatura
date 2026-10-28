@@ -13,6 +13,7 @@ export type ExtensionMessage = {
     | "FILL_ACTIVE_TAB"
     | "UNDO_ACTIVE_TAB"
     | "GET_ACTIVE_SESSION"
+    | "START_TEACH_ACTIVE_TAB"
     | "APPLY_SUGGESTION_ACTIVE_TAB";
   suggestionId?: string;
 };
@@ -29,6 +30,7 @@ export function isExtensionMessage(value: unknown): value is ExtensionMessage {
       "FILL_ACTIVE_TAB",
       "UNDO_ACTIVE_TAB",
       "GET_ACTIVE_SESSION",
+      "START_TEACH_ACTIVE_TAB",
       "APPLY_SUGGESTION_ACTIVE_TAB",
     ].includes(String(value.type)) &&
     (value.type !== "APPLY_SUGGESTION_ACTIVE_TAB" ||

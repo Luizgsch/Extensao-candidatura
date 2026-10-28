@@ -1,3 +1,5 @@
+import { beginTeaching } from "./teaching";
+import { resolveLearned } from "../core/matching/learned";
 import { resolveSelection, selectionTypes } from "../core/matching/selection";
 import {
   resolveRule,
@@ -14,6 +16,7 @@ export type TabOperation =
   | "FILL_ACTIVE_TAB"
   | "UNDO_ACTIVE_TAB"
   | "GET_ACTIVE_SESSION"
+  | "START_TEACH_ACTIVE_TAB"
   | "APPLY_SUGGESTION_ACTIVE_TAB";
 export async function actOnActiveTab(
   operation: TabOperation,
@@ -44,7 +47,7 @@ export async function actOnActiveTab(
         "Esta página é protegida pelo navegador. Abra um site de candidatura.",
     };
   try {
-    await chrome.scripting.executeScript({
+    const injection = await chrome.scripting.executeScript({
       target: { tabId: tab.id, frameIds: [0] },
       files: ["content.js"],
     });
@@ -52,6 +55,8 @@ export async function actOnActiveTab(
       chrome.tabs.sendMessage(tab.id!, message, {
         frameId: 0,
       }) as Promise<unknown>;
+    if (operation === "START_TEACH_ACTIVE_TAB")
+      return beginTeaching(tab.id, tab.url, injection[0]?.documentId);
     if (operation === "ANALYZE_ACTIVE_TAB") {
       const result = await send({ type: "INSPECT_PAGE" });
       return isPageAnalysis(result)
@@ -95,7 +100,12 @@ export async function actOnActiveTab(
           ok: false,
           error: "Campo alterado ou sugestão expirada. Preencha novamente.",
         };
-      const resolution = resolveRule(plan.field, state, scope);
+      const all = await send({ type: "PLAN_RULE_FIELDS" });
+      if (!Array.isArray(all) || !all.every(isRuleField))
+        return { ok: false, error: "Plano atualizado inválido." };
+      const resolution =
+        resolveLearned(plan.field, state, scope, url.pathname, all) ??
+        resolveRule(plan.field, state, scope);
       if (
         resolution.ruleId !== plan.ruleId ||
         resolution.decision === "skip" ||
@@ -129,10 +139,12 @@ export async function actOnActiveTab(
         .filter((key) => Object.hasOwn(state.candidate, key))
         .map((key) => [key, state.candidate[key]]),
     );
-    const resolutions = questions.map((field) =>
-      selectionTypes.has(field.controlType)
-        ? resolveSelection(field, state, scope)
-        : resolveRule(field, state, scope),
+    const resolutions = questions.map(
+      (field) =>
+        resolveLearned(field, state, scope, url.pathname, questions) ??
+        (selectionTypes.has(field.controlType)
+          ? resolveSelection(field, state, scope)
+          : resolveRule(field, state, scope)),
     );
     const result = await send({
       type: "FILL_PERSONAL_FIELDS",

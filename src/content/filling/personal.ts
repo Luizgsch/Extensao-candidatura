@@ -105,11 +105,18 @@ export async function fillPersonalFields(
     } else if (foreignContext(control) || isBlockedSignals(signals(control))) {
       item.status = "review";
       item.reason = "Seção ou campo protegido. Revise manualmente.";
-    } else if (match.ambiguous) {
+    } else if (custom?.mapped && !custom.ruleId) {
+      item.status = "review";
+      item.reason = custom.reason;
+    } else if (match.ambiguous && !custom?.mapped) {
       item.status = "review";
       item.reason = "Identificações conflitantes. Revise manualmente.";
       highlight(control, "review");
-    } else if (match.key && (candidate[match.key] || !custom?.ruleId)) {
+    } else if (
+      match.key &&
+      !custom?.mapped &&
+      (candidate[match.key] || !custom?.ruleId)
+    ) {
       const answer = candidate[match.key],
         value = answer
           ? valueForPersonalField(

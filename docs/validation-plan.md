@@ -13,3 +13,13 @@ Por decisão do usuário, partes 8–12 são implementadas com verificações de
 - Regressões: partes 1–7, backups, regras, sugestões, privacidade, Chrome e Brave reais.
 
 Até a conclusão, seleções e observação dinâmica são experimentais. Revisões específicas e adaptações necessárias pertencem a esta validação.
+
+## Cobertura necessária da parte 9
+
+- Seleção de inputs, textarea, grupos e componentes ARIA; clique em label, captura de valores ausente e campos sem identificador.
+- Bloqueio de senhas, autenticação, dados bancários, terceiros e frames; nenhum envio por click/Enter durante seleção na página principal.
+- Esc, cancelamento, conclusão, expiração, recarga, suspensão do worker e troca/fechamento da aba; painel sem bloqueios residuais.
+- Persistência, deduplicação, edição de regra/caminho, consentimento, desativação, exclusão e backups.
+- Unicidade de label/name/id/seção, IDs dinâmicos, perguntas alteradas, múltiplos campos semelhantes e mapeamentos conflitantes.
+- Revalidação de sugestões aprendidas, regras removidas/inativas, troca de perfil/site e conflitos de edição em outra aba.
+- Teclado, foco, Shadow DOM, acessibilidade e telas pequenas. Fluxo completo no Chrome e Brave reais.

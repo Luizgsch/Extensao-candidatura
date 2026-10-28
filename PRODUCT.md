@@ -56,3 +56,7 @@ Regras configuráveis e sinônimos conectados ao preenchimento, com classificaç
 ## Estado implementado — parte 8 (experimental)
 
 Seleções nativas e ARIA explícitas, correspondência conservadora de opções, consentimento explícito e desfazer integrado. Observação regional detecta mudanças estruturais sem iniciar preenchimento automático. Cobertura ARIA limitada a componentes com vínculo e restauração verificáveis. Usuário decidiu concentrar testes funcionais, visuais e compatibilidade na parte 13; partes 8–12 recebem apenas tipos/build durante implementação.
+
+## Estado implementado — parte 9 (experimental)
+
+Ensino manual iniciado pelo popup, seleção explícita de campo e associação a resposta ativa. Mapeamento por domínio/caminho e identificadores textuais, sem captura de valores. Gerenciamento de associações nas configurações. Tipos, privacidade, escopos e consentimentos continuam protegidos. Validação funcional adiada para parte 13 conforme decisão do usuário.

@@ -186,3 +186,5 @@ Movimento é discreto: hover da navegação dura 0.16s; feedback entra em 0.2s, 
 - Don't adicionar animação quando a preferência de movimento reduzido estiver ativa.
 
 Privacidade oferece exportação, importação com revisão em linha, restauração de preferências e exclusão com confirmação explícita. Controles reutilizam a identidade e componentes existentes; a parte 7 preserva paleta, fontes locais e composição compacta do popup ao expor regras e sugestões revisáveis.
+
+Parte 9 adiciona ação Ensinar um campo ao popup e Campos ensinados às configurações. Painel utilitário de seleção usa marrom/bege, controles de 44px e região acessível, sem nova identidade visual. Painel é isolado em Shadow DOM; confirmação de salvamento não implica preenchimento. Revisão visual consolidada fica para parte 13.

@@ -1,3 +1,4 @@
+import { learnedFingerprint } from "../context/learned-target";
 import { isVisible } from "./visibility";
 import { signals, foreignContext, languageOf } from "../context/fields";
 import {
@@ -234,6 +235,13 @@ export function selectionOptions(field: SelectionField) {
 export function selectionDescriptor(field: SelectionField): RuleField {
   return {
     fieldId: field.id,
+    mappingFingerprint: learnedFingerprint(
+      field.root,
+      field.kind,
+      ["radio", "checkbox-group", "aria-radio"].includes(field.kind)
+        ? field.question
+        : undefined,
+    ),
     question: field.question,
     controlType: field.kind,
     language: languageOf(field.root),

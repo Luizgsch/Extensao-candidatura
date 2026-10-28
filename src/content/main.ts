@@ -1,3 +1,4 @@
+import { startTeaching } from "./teaching/picker";
 import {
   selectionFields,
   selectionDescriptor,
@@ -36,6 +37,16 @@ if (!window.__candidaturasBridgeInstalled) {
         !("type" in message)
       )
         return false;
+      if (
+        message.type === "START_TEACHING" &&
+        "sessionId" in message &&
+        typeof message.sessionId === "string" &&
+        "rules" in message &&
+        Array.isArray(message.rules)
+      ) {
+        sendResponse(startTeaching(message.sessionId, message.rules));
+        return false;
+      }
       if (message.type === "INSPECT_PAGE") {
         sendResponse(inspectPage(document));
         return false;

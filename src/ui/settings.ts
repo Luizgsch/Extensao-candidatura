@@ -1,3 +1,4 @@
+import { renderMappings, bindMappings } from "./mappings";
 import { editAnswer } from "../storage/answers";
 import type { AppState, AnswerValue, LocalizedText } from "../shared/types";
 import { loadState, saveState, clearAllData, preview } from "./storage";
@@ -14,6 +15,7 @@ const pages: Record<string, string> = {
   dados: "Meus dados",
   experiencias: "Experiências",
   respostas: "Minhas respostas",
+  ensinados: "Campos ensinados",
   perfis: "Perfis",
   preferencias: "Preferências",
   privacidade: "Privacidade",
@@ -22,6 +24,7 @@ const descriptions: Record<string, string> = {
   dados: "Organize uma vez. Leve suas informações para cada oportunidade.",
   experiencias: "Sua trajetória, com espaço para contar os detalhes.",
   respostas: "Guarde respostas recorrentes, sem repetir o trabalho.",
+  ensinados: "Ensine uma vez. Gerencie as associações de cada site.",
   perfis: "Uma preparação diferente para cada tipo de oportunidade.",
   preferencias: "Defina quando uma correspondência merece sua confiança.",
   privacidade: "Seus dados ficam neste navegador. Você mantém o controle.",
@@ -226,6 +229,7 @@ function empty(title: string, text: string) {
   return '<div class="empty"><h2>' + title + "</h2><p>" + text + "</p></div>";
 }
 function body(): string {
+  if (page === "ensinados") return renderMappings(state);
   if (page === "dados")
     return (
       '<form id="personal">' +
@@ -687,6 +691,7 @@ function restoreFocus() {
   target?.focus();
 }
 function bind() {
+  bindMappings(state, { save: persist, notify, confirmDiscard, restoreFocus });
   bindPrivacy();
   document.querySelectorAll<HTMLButtonElement>("[data-page]").forEach(
     (b) =>

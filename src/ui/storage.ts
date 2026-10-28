@@ -53,6 +53,7 @@ export async function clearAllData(): Promise<void> {
   }
   await navigator.locks.request("candidaturas-state", async () => {
     await chrome.storage.local.clear();
+    await chrome.storage.session.clear();
     loadedSnapshot = undefined;
   });
 }

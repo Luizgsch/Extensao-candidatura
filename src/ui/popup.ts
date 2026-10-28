@@ -5,7 +5,7 @@ const $ = (id: string) => document.getElementById(id)!;
 const status = $("status"),
   note = $("analysis-note");
 const select = $("profile") as HTMLSelectElement;
-const actions = ["analyze", "fill", "undo"].map(
+const actions = ["analyze", "fill", "undo", "teach"].map(
   (id) => $(id) as HTMLButtonElement,
 );
 let undoAvailable = false,
@@ -159,6 +159,15 @@ async function run(type: string, suggestionId?: string) {
           : "Não foi possível acessar a página.",
       );
     if (
+      type === "START_TEACH_ACTIVE_TAB" &&
+      "teaching" in value &&
+      value.teaching === true
+    ) {
+      status.textContent =
+        "Clique no campo da página e escolha a resposta. Esc cancela.";
+      if (chrome.extension.getViews({ type: "popup" }).includes(window))
+        window.close();
+    } else if (
       type === "ANALYZE_ACTIVE_TAB" &&
       "analysis" in value &&
       isPageAnalysis(value.analysis)
@@ -233,6 +242,7 @@ async function run(type: string, suggestionId?: string) {
     updateControls();
   }
 }
+$("teach").addEventListener("click", () => void run("START_TEACH_ACTIVE_TAB"));
 $("analyze").addEventListener("click", () => void run("ANALYZE_ACTIVE_TAB"));
 $("fill").addEventListener("click", () => void run("FILL_ACTIVE_TAB"));
 $("undo").addEventListener("click", () => void run("UNDO_ACTIVE_TAB"));

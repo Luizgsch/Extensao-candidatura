@@ -18,6 +18,7 @@ export interface RuleField {
   controlType: string;
   language: Language;
   fingerprint: string;
+  mappingFingerprint?: import("../../shared/types").FieldMapping["fingerprint"];
   options?: { id: string; label: string; value: string; disabled?: boolean }[];
 }
 export interface RuleResolution {
@@ -31,6 +32,7 @@ export interface RuleResolution {
   value?: string;
   selectionValues?: string[];
   consentApproved?: boolean;
+  mapped?: boolean;
 }
 export interface RuleScope {
   domain: string;

@@ -137,6 +137,7 @@ const profile = z
   .strict();
 const mapping = z
   .object({
+    allowConsent: z.boolean().optional(),
     id,
     domain: text,
     pathPattern: text.optional(),

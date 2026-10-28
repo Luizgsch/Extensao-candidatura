@@ -1,6 +1,6 @@
 # Assistente de Candidaturas
 
-Extensão local Manifest V3. Parte 8: seleções e observação de campos dinâmicos implementadas em caráter experimental. Validação funcional completa adiada para a parte 13 por decisão do usuário.
+Extensão local Manifest V3. Parte 9: aprendizado manual de campos, seleções e observação dinâmica em caráter experimental. Validação funcional completa adiada para a parte 13 por decisão do usuário.
 
 ## Ambiente
 
@@ -83,3 +83,15 @@ Comboboxes exigem aria-controls/aria-owns único apontando para listbox e opçã
 Um MutationObserver regional, somente de mudanças estruturais, marca adições/remoções de campos e alterações de opções. Não preenche espontaneamente. Ao reabrir popup, pode indicar novas perguntas; clique Preencher novamente para analisar o estado atual. Uma nova varredura sempre ocorre sob comando.
 
 Verificações desta entrega: TypeScript e build. Nenhum teste unitário, visual ou de navegador foi executado na parte 8. Compatibilidade com bibliotecas, restauração de radio controlado e widgets ARIA permanecem provisórios até a parte 13. Relatórios contam grupos de seleção como uma pergunta; consistência com a contagem bruta da análise será avaliada na validação final.
+
+## Ensinar este campo — parte 9
+
+Na candidatura, abra popup e clique Ensinar um campo. Clique no campo da página principal, escolha uma resposta ativa e salve a associação. O modo bloqueia cliques fora do painel para evitar ações acidentais; Esc ou Cancelar encerra a seleção. Nenhuma resposta é inserida ao ensinar. Após salvar, use Preencher página.
+
+Por padrão, associação limita-se ao domínio e caminho da página, sem parâmetros ou fragmentos. Desmarcar essa opção permite reutilização naquele domínio com identificação suficientemente estável. São salvos label, name, id, seção e tipo de controle; valores dos campos, HTML e seletores de posição não são armazenados. A sessão temporária de seleção fica apenas na memória da sessão do navegador para sobreviver à suspensão do service worker; associações finais ficam em chrome.storage.local.
+
+Campos ensinados nas configurações permite mudar resposta/caminho, autorizar aceites explicitamente, ativar, desativar e excluir associações. Desativar associação não desativa as regras gerais. Respostas inativas ou fora do domínio/perfil não são aplicadas. Mapeamentos conflitantes, pergunta/seção alterada ou alvo ambíguo ficam manuais. Campos protegidos, terceiros e frames não podem ser ensinados por esse modo.
+
+O mapeamento apenas identifica a resposta: compatibilidade de tipos, exclusões, confidence, sugestões discursivas, preservação e limites de seleção continuam ativos. Perguntas negativas, compostas e requisitos numéricos precisam de regra específica. Aceites exigem autorização explícita; ensinar não habilita envio ou upload.
+
+Parte 9 recebeu somente verificação TypeScript e build. A seleção visual, persistência por site, conflitos e experiência em navegadores serão validados na parte 13. Recarregue extensão e página para atualizar o content script.

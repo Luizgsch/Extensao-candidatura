@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Assistente de Candidaturas",
-  "version": "0.6.0",
-  "description": "Dados e respostas locais. Seleções experimentais, revisão e desfazer; envio manual.",
+  "version": "0.7.0",
+  "description": "Dados, respostas e campos ensinados por site. Recursos novos experimentais; envio manual.",
   "permissions": ["storage", "activeTab", "scripting"],
   "background": {
     "service_worker": "background.js"

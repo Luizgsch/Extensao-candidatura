@@ -75,3 +75,11 @@ selection-fields.ts agrupa controles nativos por formulário/nome/fieldset e rec
 observer/dynamic.ts usa um observador regional em até cinco formulários/role=form, ou body quando necessário, com childList/subtree, limite por lote e debounce. Não observa valores ou atributos e não dispara preenchimento. Mudanças aparecem na sessão; novo comando reavalia DOM e opções. Cobertura de regiões e contagens ainda precisam de validação funcional.
 
 Conforme instrução explícita do usuário, nesta fase somente tipos e build. Testes e revisão visual transferidos para a parte 13.
+
+## Parte 9 — ensino manual experimental
+
+content/teaching/picker seleciona campo da página principal por clique confiável, com painel isolado e bloqueio de ações acidentais durante seleção. Captura metadata via context/learned-target, sem value/HTML. Mensagens START_TEACH_ACTIVE_TAB e SAVE_TAUGHT_FIELD exigem origem da extensão, sessão efêmera, aba/documento e resposta válida. A autorização temporária fica em chrome.storage.session, sem URL com query; associação final usa local. Estado protegido por Web Locks e parseState, com deduplicação do alvo.
+
+core/matching/learned combina domínio exato, caminho opcional, label, name/id, seção e tipo, com unicidade/ambiguidades. Alterações de significado e múltiplas respostas conflitantes bloqueiam aplicação. Associação aprendida tem precedência sobre reconhecimento genérico, mas mantém verificações de tipo, exclusões, domínio/perfil e sugestões. Perguntas restritas não ganham respostas inferidas; consentimento requer configuração explícita. Sugestões reavaliam associação no estado atual.
+
+UI mappings gerencia associação, caminho, permissões de aceite, ativação e exclusão. Backups completos incluem associações; preferências isoladas não. FieldMapping ganha allowConsent opcional para autorizações explícitas. Atualização aditiva do contrato local; dados existentes continuam legíveis nesta versão. Somente tipos/build executados; testes ficam na parte 13.

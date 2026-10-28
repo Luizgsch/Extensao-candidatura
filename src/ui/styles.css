@@ -529,3 +529,7 @@ input[type="number"],
   line-height: 1.5;
   color: var(--muted);
 }
+
+.popup #teach {
+  margin-top: 10px;
+}

@@ -1,3 +1,4 @@
+import { learnedFingerprint } from "./learned-target";
 import { normalizeText } from "../../core/normalization";
 import {
   matchPersonalField,
@@ -86,6 +87,7 @@ export function describeRuleField(element: NativeTextControl): RuleField {
   return {
     fieldId,
     question,
+    mappingFingerprint: learnedFingerprint(element, controlType),
     controlType,
     language,
     fingerprint: JSON.stringify([
@@ -108,7 +110,7 @@ export function planRuleFields(): RuleField[] {
         return false;
       if (element instanceof HTMLInputElement) {
         const match = matchPersonalField(signals(element));
-        if (match.ambiguous) return false;
+        // Learned mappings may disambiguate label/id conflicts; protected fields remain excluded above.
       }
       return true;
     })

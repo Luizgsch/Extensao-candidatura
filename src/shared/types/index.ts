@@ -82,6 +82,7 @@ export interface FieldDescriptor {
   editable: boolean;
 }
 export interface FieldMapping {
+  allowConsent?: boolean;
   id: string;
   domain: string;
   pathPattern?: string;
