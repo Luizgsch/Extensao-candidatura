@@ -30,3 +30,9 @@ Até a conclusão, seleções e observação dinâmica são experimentais. Revis
 - Carregar todas as coleções pessoais, confirmar atualizações, manter preferências/mapeamentos e não duplicar IDs em cliques repetidos.
 - Preservar tipos, traduções, referências entre perfis/regras/experiências e demais registros existentes.
 - Prévia efêmera versus persistência na extensão; falhas de arquivo, versão pública sem arquivo, edição posterior e publicação segura.
+
+## Correção de pretensão salarial
+
+- Validar pergunta numerada da Gupy com CLT e instrução para não colocar valor a combinar, inclusive espaços HTML.
+- Conferir preenchimento mensal em BRL, preservação de valor existente e desfazer; outras moedas, períodos e perguntas negativas continuam protegidos.
+- Validar identificação por texto próximo quando o campo não possui label associado. Validação funcional pendente na parte 13.

@@ -1,6 +1,8 @@
+import { salaryPrompt } from "./salary-prompt";
 import { normalizeText, containsPhrase } from "../normalization";
 import type { AnswerValue, Language } from "../../shared/types";
 const aliases: Record<string, string[]> = {
+  salaryExpectation: ["pretensao salarial"],
   fullName: [
     "nome",
     "nome completo",
@@ -122,6 +124,7 @@ export interface PersonalMatch {
   ambiguous: boolean;
 }
 export function normalizeSignal(text: string): string {
+  if (salaryPrompt(text)) return "pretensao salarial";
   return normalizeText(text.replace(/([a-z])([A-Z])/g, "$1 $2"))
     .replace(/\be mail\b/g, "email")
     .replace(/ (required|obrigatorio|obrigatoria)$/, "")
@@ -214,7 +217,17 @@ export function valueForPersonalField(
   answer: AnswerValue,
   type: string,
   language: Language,
+  question?: string,
 ): string | undefined {
+  if (key === "salaryExpectation")
+    return answer.type === "salary" &&
+      answer.currency === "BRL" &&
+      answer.period === "month" &&
+      ["text", "number"].includes(type) &&
+      !!question &&
+      salaryPrompt(question)
+      ? String(answer.value)
+      : undefined;
   if (
     answer.type === "long-text" ||
     answer.type === "boolean" ||

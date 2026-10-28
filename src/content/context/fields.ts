@@ -25,16 +25,24 @@ export function signals(element: NativeTextControl): PersonalSignals {
       .map((label) => label.textContent ?? "")
       .join(" ")
   ).trim();
-  if (
-    !label &&
-    element.parentElement?.querySelectorAll("input,textarea,select").length ===
-      1
-  ) {
-    const clone = element.parentElement.cloneNode(true) as HTMLElement;
-    clone
-      .querySelectorAll("input,textarea,select,button,output,script,style")
-      .forEach((node) => node.remove());
-    label = clone.textContent?.trim() ?? "";
+  if (!label) {
+    let parent = element.parentElement;
+    for (
+      let depth = 0;
+      parent && depth < 3 && !["BODY", "HTML", "FORM"].includes(parent.tagName);
+      depth++, parent = parent.parentElement
+    ) {
+      if (parent.querySelectorAll("input,textarea,select").length !== 1) break;
+      const clone = parent.cloneNode(true) as HTMLElement;
+      clone
+        .querySelectorAll("input,textarea,select,button,output,script,style")
+        .forEach((node) => node.remove());
+      const nearby = clone.textContent?.trim() ?? "";
+      if (nearby) {
+        label = nearby;
+        break;
+      }
+    }
   }
   return {
     label: label.slice(0, 2000),

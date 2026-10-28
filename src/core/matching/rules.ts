@@ -1,3 +1,4 @@
+import { salaryPrompt } from "./salary-prompt";
 import { questionIntent } from "../classification/intent";
 import { normalizeText, containsPhrase } from "../normalization";
 import {
@@ -132,6 +133,11 @@ function formattedAnswer(
         ? "Sim"
         : "Não";
   if (answer.type === "salary") {
+    if (
+      salaryPrompt(field.question) &&
+      (answer.currency !== "BRL" || answer.period !== "month")
+    )
+      return undefined;
     const q = normalizeText(field.question);
     const period = /\b(anual|ano|annual|yearly|per year)\b/.test(q)
       ? "year"
@@ -173,6 +179,8 @@ export function resolveRule(
   state: AppState,
   scope: RuleScope,
 ): RuleResolution {
+  if (salaryPrompt(field.question))
+    field = { ...field, question: "Pretensão salarial" };
   const question = canonicalize(field.question, state.synonyms),
     inferred = expectedAnswerType(field.question, field.controlType);
   const optionLabels = field.options
