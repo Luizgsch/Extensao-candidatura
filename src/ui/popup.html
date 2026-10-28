@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Assistente de Candidaturas</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="popup">
+    <main>
+      <div class="brand">Candidaturas<span>Assistente local</span></div>
+      <h1>Seu próximo<br />passo começa aqui.</h1>
+      <p>Seus dados organizados. Cada candidatura, sob seu controle.</p>
+      <label for="profile">Perfil de candidatura</label
+      ><select id="profile">
+        <option value="">Nenhum perfil cadastrado</option>
+      </select>
+      <div class="notice">
+        Preenchimento em preparação. Nesta etapa, configure seus dados e
+        respostas.
+      </div>
+      <button disabled>Preencher página</button>
+      <dl class="counts">
+        <div>
+          <dt>Campos encontrados</dt>
+          <dd>—</dd>
+        </div>
+        <div>
+          <dt>Revisão necessária</dt>
+          <dd>—</dd>
+        </div>
+      </dl>
+      <button id="settings" class="secondary">Abrir configurações</button>
+      <p id="status" role="status"></p>
+      <footer>Armazenamento local · Envio sempre manual</footer>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

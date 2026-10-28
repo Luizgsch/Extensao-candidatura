@@ -27,3 +27,7 @@ storage, activeTab e scripting. Sem acesso permanente a todos os sites. Frames e
 ## Etapas seguintes
 
 Parte 3: fluxos e frontend com impeccable. Parte 4: execução e comunicação com a aba. Parte 5: cadastro, validação e importação/exportação. Parte 6: primeiro preenchimento utilizável.
+
+## Atualização — parte 3
+
+Popup e configurações em aba implementados. Cadastro local de identificação, contato, formação principal, experiências com descrições amplas, respostas básicas, perfis e preferências. Preenchimento permanece indisponível. A prévia HTTP usa memória efêmera e informa isso; a extensão usa chrome.storage.local. Fontes locais com licenças no pacote. Revisão de interface inclui telas de 320, 375 e 430px; persistência validada numa extensão real em perfil isolado do Edge. Validação direta em Chrome e Brave continua pendente.

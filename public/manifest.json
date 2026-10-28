@@ -2,12 +2,17 @@
   "manifest_version": 3,
   "name": "Assistente de Candidaturas",
   "version": "0.1.0",
-  "description": "Assistente local. Base técnica, sem preenchimento nesta versão.",
+  "description": "Organize dados e respostas localmente. Preenchimento em desenvolvimento.",
   "permissions": ["storage", "activeTab", "scripting"],
   "background": {
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Assistente de Candidaturas — base técnica"
+    "default_title": "Assistente de Candidaturas — base técnica",
+    "default_popup": "popup.html"
+  },
+  "options_ui": {
+    "page": "settings.html",
+    "open_in_tab": true
   }
 }

@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-28T20:08:28.604023+00:00",
+  "title": "Design System: Assistente de Candidaturas",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "paper",
+        "canonical": "#f5efe6"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "ink",
+        "canonical": "#2a211c"
+      },
+      "brown": {
+        "role": "primary",
+        "displayName": "brown",
+        "canonical": "#39281f"
+      },
+      "action": {
+        "role": "primary",
+        "displayName": "action",
+        "canonical": "#714a35"
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "muted",
+        "canonical": "#725e50"
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "line",
+        "canonical": "#d5c7b8"
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "white",
+        "canonical": "#fffcf8"
+      },
+      "button-text": {
+        "role": "neutral",
+        "displayName": "button-text",
+        "canonical": "#ffffff"
+      },
+      "action-hover": {
+        "role": "primary",
+        "displayName": "action-hover",
+        "canonical": "#563723"
+      },
+      "field-border": {
+        "role": "neutral",
+        "displayName": "field-border",
+        "canonical": "#b7a797"
+      },
+      "focus": {
+        "role": "neutral",
+        "displayName": "focus",
+        "canonical": "#a26931"
+      },
+      "nav-text": {
+        "role": "neutral",
+        "displayName": "nav-text",
+        "canonical": "#e5d6c8"
+      },
+      "nav-hover": {
+        "role": "neutral",
+        "displayName": "nav-hover",
+        "canonical": "#523c2e"
+      },
+      "notice-bg": {
+        "role": "neutral",
+        "displayName": "notice-bg",
+        "canonical": "#e9ddcf"
+      },
+      "notice-text": {
+        "role": "neutral",
+        "displayName": "notice-text",
+        "canonical": "#594332"
+      },
+      "disabled-bg": {
+        "role": "neutral",
+        "displayName": "disabled-bg",
+        "canonical": "#e0d5c9"
+      },
+      "disabled-text": {
+        "role": "neutral",
+        "displayName": "disabled-text",
+        "canonical": "#68584b"
+      },
+      "disabled-border": {
+        "role": "neutral",
+        "displayName": "disabled-border",
+        "canonical": "#c5b5a4"
+      },
+      "secondary-border": {
+        "role": "neutral",
+        "displayName": "secondary-border",
+        "canonical": "#b7a391"
+      },
+      "secondary-hover": {
+        "role": "neutral",
+        "displayName": "secondary-hover",
+        "canonical": "#eadfd1"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Título principal",
+        "purpose": "Título da área de configurações."
+      },
+      "body": {
+        "displayName": "Interface",
+        "purpose": "Texto e controles operacionais."
+      }
+    },
+    "shadows": [
+      {
+        "name": "feedback",
+        "value": "0 8px 24px #39281f26",
+        "purpose": "Única elevação recorrente; feedback fixo."
+      }
+    ],
+    "motion": [
+      {
+        "name": "navigation-hover",
+        "value": "background 0.16s ease-out",
+        "purpose": "Somente sem preferência por movimento reduzido."
+      },
+      {
+        "name": "feedback-entry",
+        "value": "notify 0.2s ease-out",
+        "purpose": "Translate Y de 8px a 0 e blur de 2px a 0; somente sem movimento reduzido."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact",
+        "value": "900px"
+      },
+      {
+        "name": "mobile",
+        "value": "600px"
+      }
+    ],
+    "source": {
+      "stylesheet": "src/ui/styles.css",
+      "buildPath": "code",
+      "tonalRamps": "Não sintetizadas: somente cores usadas no CSS são normativas."
+    }
+  },
+  "components": [
+    {
+      "name": "Botão principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ação principal do formulário.",
+      "html": "<button class=\"primary\">Salvar alterações</button>",
+      "css": ".primary{font-family:\"DM Sans\",sans-serif;font-synthesis:none;box-sizing:border-box;min-height:44px;padding:11px 22px;border:1px solid var(--action,#714a35);border-radius:5px;background:var(--action,#714a35);color:white;cursor:pointer}.primary:hover{background:#563723}.primary:focus-visible{outline:3px solid #a26931;outline-offset:4px}"
+    },
+    {
+      "name": "Campo de texto",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Rótulo explícito acima do campo.",
+      "html": "<label for=\"sample\">Nome completo</label><input id=\"sample\" placeholder=\"Seu nome\">",
+      "css": "label{font-family:\"DM Sans\",sans-serif;font-synthesis:none;box-sizing:border-box;display:block;font-size:13px;margin-bottom:8px;color:var(--muted,#725e50)}input{font-family:\"DM Sans\",sans-serif;font-synthesis:none;box-sizing:border-box;width:100%;min-height:46px;background:var(--white,#fffcf8);border:1px solid #b7a797;border-radius:4px;padding:12px;color:var(--ink,#2a211c)}input:focus-visible{outline:3px solid #a26931;outline-offset:4px}"
+    },
+    {
+      "name": "Navegação de operação",
+      "kind": "nav",
+      "refersTo": "navigation-active",
+      "description": "Seção ativa em papel sobre navegação marrom.",
+      "html": "<nav><button aria-current=\"page\">Meus dados</button><button>Experiências</button></nav>",
+      "css": "nav{font-family:\"DM Sans\",sans-serif;font-synthesis:none;box-sizing:border-box;display:flex;flex-direction:column;gap:5px;background:var(--brown,#39281f);padding:24px}button{font-family:\"DM Sans\",sans-serif;font-synthesis:none;box-sizing:border-box;min-height:44px;padding:12px 14px;border:0;border-radius:4px;background:transparent;color:#e5d6c8;text-align:left}button:hover{background:#523c2e}button[aria-current=\"page\"]{background:var(--paper,#f5efe6);color:var(--brown,#39281f)}button:focus-visible{outline:3px solid #a26931;outline-offset:4px}"
+    },
+    {
+      "name": "Aviso",
+      "kind": "custom",
+      "description": "Contexto operacional sem efeito de cartão elevado.",
+      "html": "<aside>Preenchimento em preparação. Configure seus dados e respostas.</aside>",
+      "css": "aside{font-family:\"DM Sans\",sans-serif;font-synthesis:none;box-sizing:border-box;padding:18px;border-radius:4px;background:#e9ddcf;color:#594332;font-size:13px;line-height:1.6}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Mesa editorial de candidaturas",
+    "overview": "Uma mesa de trabalho editorial para preparar candidaturas. O papel bege acolhe formulários extensos, enquanto a navegação marrom delimita a operação. Títulos com serifa dão caráter humano; controles discretos mantêm a leitura e o preenchimento como prioridade.\n\nA implementação é code-first: HTML, CSS e TypeScript são a fonte visual, sem biblioteca de componentes. Este documento registra o CSS existente, sem ampliar capacidades do produto.",
+    "keyCharacteristics": [
+      "Marrom e bege com texto escuro nas superfícies claras e claro nas escuras.",
+      "Newsreader nos títulos e DM Sans na interface, servidas por arquivos locais.",
+      "Seções separadas por linhas, com espaço para descrições longas.",
+      "Navegação de operação consistente entre configurações e popup."
+    ],
+    "rules": [
+      {
+        "name": "The Papel Rule",
+        "body": "Preserve o contraste entre a navegação escura e a área de trabalho clara.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Do preservar rótulos explícitos e foco visível.",
+      "Do manter estados vazios honestos e contagens indisponíveis como travessão.",
+      "Do usar campos amplos para respostas e experiências.",
+      "Do manter as fontes locais e a identidade compartilhada pelo popup."
+    ],
+    "donts": [
+      "Don't exibir detecção ou preenchimento como disponíveis nesta etapa.",
+      "Don't inserir métricas fictícias ou dados pessoais no repositório.",
+      "Don't substituir divisores e superfícies por uma coleção de cartões com sombra.",
+      "Don't adicionar animação quando a preferência de movimento reduzido estiver ativa."
+    ]
+  }
+}

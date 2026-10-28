@@ -3,3 +3,5 @@ dist/
 work/
 *.local.json
 .env*
+
+.impeccable/review/
